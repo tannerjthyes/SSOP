@@ -131,40 +131,12 @@ const renderFoodOrder = () => {
 
 
 // ==========================================
-// 3. M.I.A TRACKER (ABSENCE COUNTER)
-// ==========================================
-const renderMIATracker = () => {
-    const miaList = document.getElementById('mia-list');
-    const miaData = [
-        { name: "Carter", weeks: 12, label: "Presumed Lost" },
-        { name: "Huske", weeks: 8, label: "M.I.A." },
-        { name: "Mitch", weeks: 4, label: "AWOL" },
-        { name: "Blake", weeks: 2, label: "Cards: No | Food: Pending" }
-    ];
-
-    miaList.innerHTML = miaData.sort((a, b) => b.weeks - a.weeks).map(p => `
-        <li class="flex justify-between items-center p-3 hover:bg-gray-800/30">
-            <div>
-                <span class="font-bold text-white block">${p.name}</span>
-                <span class="text-[10px] uppercase tracking-wider text-sunset font-mono">${p.label}</span>
-            </div>
-            <div class="text-right">
-                <span class="text-2xl font-bold ${p.weeks >= 5 ? 'text-sunset' : 'text-gray-400'}">${p.weeks}</span>
-                <span class="text-xs text-gray-500 block">WEEKS</span>
-            </div>
-        </li>
-    `).join('');
-};
-
-
-// ==========================================
-// 4. LIVE RSVP TRACKER (WEEKLY SEGREGATED)
+// 3. LIVE RSVP TRACKER (WEEKLY SEGREGATED)
 // ==========================================
 const initRSVP = () => {
     const rsvpList = document.getElementById('rsvp-list');
     const weekSelect = document.getElementById('rsvp-week-select');
     
-    // Consolidated roster (Austin = Sully/AT, Grant = G Mully)
     const roster = [
         "Austin", 
         "Blake", 
@@ -181,14 +153,12 @@ const initRSVP = () => {
         "Watt"
     ];
 
-    // Sessions list (Session 2 defaults as current)
     const sessions = [
         { id: "session-2", label: "Session 2 (10/06)" },
         { id: "session-3", label: "Session 3 (10/13)" },
         { id: "session-1", label: "Session 1 (09/29)" }
     ];
 
-    // Populate week dropdown
     weekSelect.innerHTML = sessions.map(s => `
         <option value="${s.id}">${s.label}</option>
     `).join('');
@@ -196,7 +166,6 @@ const initRSVP = () => {
     let currentWeekId = sessions[0].id;
     let currentWeekRef = null;
 
-    // Helper to render roster rows
     const renderRosterDOM = () => {
         rsvpList.innerHTML = roster.map(player => `
             <li class="flex justify-between items-center p-3 hover:bg-gray-800/30">
@@ -210,10 +179,9 @@ const initRSVP = () => {
         `).join('');
     };
 
-    // Listen to Firebase path for selected session
     const bindWeekListener = (weekId) => {
         if (currentWeekRef) {
-            off(currentWeekRef); // Unsubscribe old listener
+            off(currentWeekRef);
         }
         
         renderRosterDOM();
@@ -245,13 +213,11 @@ const initRSVP = () => {
         });
     };
 
-    // Week switch event
     weekSelect.addEventListener('change', (e) => {
         currentWeekId = e.target.value;
         bindWeekListener(currentWeekId);
     });
 
-    // Write button clicks to current week path
     rsvpList.addEventListener('click', (e) => {
         if (e.target.classList.contains('rsvp-btn')) {
             const player = e.target.dataset.player;
@@ -260,13 +226,12 @@ const initRSVP = () => {
         }
     });
 
-    // Initial load
     bindWeekListener(currentWeekId);
 };
 
 
 // ==========================================
-// 5. LEADERBOARD CHART
+// 4. LEADERBOARD CHART
 // ==========================================
 const initChart = () => {
     const ctx = document.getElementById('seasonChart').getContext('2d');
@@ -299,7 +264,7 @@ const initChart = () => {
 
 
 // ==========================================
-// 6. FIREBASE CHAT LOGIC
+// 5. FIREBASE CHAT LOGIC
 // ==========================================
 const initChat = () => {
     const chatForm = document.getElementById('chat-form');
@@ -360,11 +325,10 @@ const initChat = () => {
     });
 };
 
-// Initialize everything on page load
+// Initialize components
 document.addEventListener('DOMContentLoaded', () => {
     renderRecap();
     renderFoodOrder();
-    renderMIATracker();
     initRSVP();
     initChart();
     initChat();

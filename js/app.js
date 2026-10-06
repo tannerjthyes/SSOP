@@ -180,9 +180,7 @@ const initRSVP = () => {
     };
 
     const bindWeekListener = (weekId) => {
-        if (currentWeekRef) {
-            off(currentWeekRef);
-        }
+        if (currentWeekRef) off(currentWeekRef);
         
         renderRosterDOM();
         currentWeekRef = ref(db, `rsvp/${weekId}`);
@@ -196,19 +194,14 @@ const initRSVP = () => {
                 if (!btnQuery) return;
                 
                 const row = btnQuery.closest('li');
-                
                 row.querySelectorAll('.rsvp-btn').forEach(btn => {
                     btn.className = "rsvp-btn px-3 py-1 rounded text-xs font-bold border border-gray-700 text-gray-500 hover:opacity-80 transition-colors";
                 });
                 
                 const activeBtn = row.querySelector(`button[data-status="${status}"]`);
-                if (status === 'yes') {
-                    activeBtn.className = "rsvp-btn px-3 py-1 rounded text-xs font-bold bg-neon/20 border border-neon text-neon";
-                } else if (status === 'no') {
-                    activeBtn.className = "rsvp-btn px-3 py-1 rounded text-xs font-bold bg-sunset/20 border border-sunset text-sunset";
-                } else {
-                    activeBtn.className = "rsvp-btn px-3 py-1 rounded text-xs font-bold bg-gray-700 border border-gray-500 text-white";
-                }
+                if (status === 'yes') activeBtn.className = "rsvp-btn px-3 py-1 rounded text-xs font-bold bg-neon/20 border border-neon text-neon";
+                else if (status === 'no') activeBtn.className = "rsvp-btn px-3 py-1 rounded text-xs font-bold bg-sunset/20 border border-sunset text-sunset";
+                else activeBtn.className = "rsvp-btn px-3 py-1 rounded text-xs font-bold bg-gray-700 border border-gray-500 text-white";
             });
         });
     };
@@ -220,9 +213,7 @@ const initRSVP = () => {
 
     rsvpList.addEventListener('click', (e) => {
         if (e.target.classList.contains('rsvp-btn')) {
-            const player = e.target.dataset.player;
-            const status = e.target.dataset.status;
-            set(ref(db, `rsvp/${currentWeekId}/${player}`), status);
+            set(ref(db, `rsvp/${currentWeekId}/${e.target.dataset.player}`), e.target.dataset.status);
         }
     });
 
@@ -264,7 +255,7 @@ const initChart = () => {
 
 
 // ==========================================
-// 5. FIREBASE CHAT LOGIC
+// 5. FIREBASE CHAT LOGIC (WITH FAIL-SAFES)
 // ==========================================
 const initChat = () => {
     const chatForm = document.getElementById('chat-form');
@@ -286,30 +277,40 @@ const initChat = () => {
         snapshot.forEach(child => msgs.push(child.val()));
 
         if (msgs.length === 0) {
-            chatMessagesDiv.innerHTML = '<div class="text-center text-gray-500 text-sm mt-4 italic">No trash talk yet. Send the first shot!</div>';
+            chatMessagesDiv.innerHTML = '<div class="text-center text-gray-500 text-sm mt-4 italic">No chat history yet. Send the first message!</div>';
             return;
         }
 
         msgs.forEach(msg => {
-            const isMe = chatUsername.value && msg.username && msg.username.toLowerCase() === chatUsername.value.toLowerCase();
+            // Fail-safe: Skip completely broken entries (e.g. nulls caused by manual deletions)
+            if (!msg || typeof msg !== 'object') return; 
+
+            // Fail-safe: Ensure fields are read as strings to prevent .toLowerCase() crashes
+            const safeUsername = msg.username ? String(msg.username) : "Unknown";
+            const safeText = msg.text ? String(msg.text) : "";
+            
+            const isMe = chatUsername.value && safeUsername.toLowerCase() === chatUsername.value.toLowerCase();
             const msgDiv = document.createElement('div');
             msgDiv.className = `flex flex-col ${isMe ? 'items-end' : 'items-start'} mb-3`;
             const bubbleClass = isMe ? 'bg-sunset/20 border border-sunset/30 text-white rounded-tl-xl rounded-tr-xl rounded-bl-xl' : 'bg-gray-800 border border-gray-700 text-gray-200 rounded-tl-xl rounded-tr-xl rounded-br-xl';
             const nameColor = isMe ? 'text-sunset' : 'text-neon';
             
-            const timeStr = new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            // Fail-safe: Fallback to current time if timestamp is corrupted
+            const timeObj = msg.timestamp ? new Date(msg.timestamp) : new Date();
+            const timeStr = timeObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             
             msgDiv.innerHTML = `
                 <div class="flex items-baseline space-x-2 mb-1 px-1">
-                    <span class="text-xs font-bold ${nameColor}">${escapeHTML(msg.username || "Unknown")}</span>
+                    <span class="text-xs font-bold ${nameColor}">${escapeHTML(safeUsername)}</span>
                     <span class="text-[10px] text-gray-500">${timeStr}</span>
                 </div>
                 <div class="px-3 py-2 max-w-[85%] text-sm shadow-sm ${bubbleClass} break-words">
-                    ${escapeHTML(msg.text)}
+                    ${escapeHTML(safeText)}
                 </div>
             `;
             chatMessagesDiv.appendChild(msgDiv);
         });
+        
         chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
     });
 

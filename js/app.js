@@ -1,5 +1,5 @@
 import { db } from './firebase-config.js';
-import { ref, push, onValue, set } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-database.js";
+import { ref, push, onValue, set, off } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-database.js";
 
 // ==========================================
 // 1. DYNAMIC RECAP CAROUSEL
@@ -135,8 +135,6 @@ const renderFoodOrder = () => {
 // ==========================================
 const renderMIATracker = () => {
     const miaList = document.getElementById('mia-list');
-    
-    // Update these numbers weekly alongside the recap manually
     const miaData = [
         { name: "Carter", weeks: 12, label: "Presumed Lost" },
         { name: "Huske", weeks: 8, label: "M.I.A." },
@@ -160,62 +158,110 @@ const renderMIATracker = () => {
 
 
 // ==========================================
-// 4. LIVE RSVP TRACKER (FIREBASE)
+// 4. LIVE RSVP TRACKER (WEEKLY SEGREGATED)
 // ==========================================
 const initRSVP = () => {
     const rsvpList = document.getElementById('rsvp-list');
-    const roster = ["AT", "Austin", "Blake", "Brooks", "Carter", "G Mully", "Grant", "Huske", "Mau", "Mitch", "N8", "Owen", "Sully", "Tanner", "Vince", "Watt"];
+    const weekSelect = document.getElementById('rsvp-week-select');
     
-    // 1. Build Initial DOM (all set to '?')
-    rsvpList.innerHTML = roster.map(player => `
-        <li class="flex justify-between items-center p-3 hover:bg-gray-800/30">
-            <span class="font-bold text-gray-300 w-1/3">${player}</span>
-            <div class="flex space-x-1 w-2/3 justify-end">
-                <button data-player="${player}" data-status="yes" class="rsvp-btn px-3 py-1 rounded text-xs font-bold border border-gray-700 text-gray-500 hover:border-neon hover:text-neon transition-colors">In</button>
-                <button data-player="${player}" data-status="pending" class="rsvp-btn px-3 py-1 rounded text-xs font-bold border border-gray-700 text-gray-500 hover:border-gray-300 hover:text-gray-300 transition-colors">?</button>
-                <button data-player="${player}" data-status="no" class="rsvp-btn px-3 py-1 rounded text-xs font-bold border border-gray-700 text-gray-500 hover:border-sunset hover:text-sunset transition-colors">Out</button>
-            </div>
-        </li>
+    // Consolidated roster (Austin = Sully/AT, Grant = G Mully)
+    const roster = [
+        "Austin", 
+        "Blake", 
+        "Brooks", 
+        "Carter", 
+        "Grant", 
+        "Huske", 
+        "Mau", 
+        "Mitch", 
+        "N8", 
+        "Owen", 
+        "Tanner", 
+        "Vince", 
+        "Watt"
+    ];
+
+    // Sessions list (Session 2 defaults as current)
+    const sessions = [
+        { id: "session-2", label: "Session 2 (10/06)" },
+        { id: "session-3", label: "Session 3 (10/13)" },
+        { id: "session-1", label: "Session 1 (09/29)" }
+    ];
+
+    // Populate week dropdown
+    weekSelect.innerHTML = sessions.map(s => `
+        <option value="${s.id}">${s.label}</option>
     `).join('');
 
-    // 2. Sync with Firebase
-    const rsvpRef = ref(db, 'rsvp');
-    
-    onValue(rsvpRef, (snapshot) => {
-        const data = snapshot.val() || {};
+    let currentWeekId = sessions[0].id;
+    let currentWeekRef = null;
+
+    // Helper to render roster rows
+    const renderRosterDOM = () => {
+        rsvpList.innerHTML = roster.map(player => `
+            <li class="flex justify-between items-center p-3 hover:bg-gray-800/30">
+                <span class="font-bold text-gray-300 w-1/3">${player}</span>
+                <div class="flex space-x-1 w-2/3 justify-end">
+                    <button data-player="${player}" data-status="yes" class="rsvp-btn px-3 py-1 rounded text-xs font-bold border border-gray-700 text-gray-500 hover:border-neon hover:text-neon transition-colors">In</button>
+                    <button data-player="${player}" data-status="pending" class="rsvp-btn px-3 py-1 rounded text-xs font-bold border border-gray-700 text-gray-500 hover:border-gray-300 hover:text-gray-300 transition-colors">?</button>
+                    <button data-player="${player}" data-status="no" class="rsvp-btn px-3 py-1 rounded text-xs font-bold border border-gray-700 text-gray-500 hover:border-sunset hover:text-sunset transition-colors">Out</button>
+                </div>
+            </li>
+        `).join('');
+    };
+
+    // Listen to Firebase path for selected session
+    const bindWeekListener = (weekId) => {
+        if (currentWeekRef) {
+            off(currentWeekRef); // Unsubscribe old listener
+        }
         
-        roster.forEach(player => {
-            const status = data[player] || 'pending';
-            const btnQuery = rsvpList.querySelector(`button[data-player="${player}"]`);
-            if (!btnQuery) return; // Skip if player not found in UI
+        renderRosterDOM();
+        currentWeekRef = ref(db, `rsvp/${weekId}`);
+
+        onValue(currentWeekRef, (snapshot) => {
+            const data = snapshot.val() || {};
             
-            const row = btnQuery.closest('li');
-            
-            // Reset all buttons in row to default gray
-            row.querySelectorAll('.rsvp-btn').forEach(btn => {
-                btn.className = "rsvp-btn px-3 py-1 rounded text-xs font-bold border border-gray-700 text-gray-500 hover:opacity-80 transition-colors";
+            roster.forEach(player => {
+                const status = data[player] || 'pending';
+                const btnQuery = rsvpList.querySelector(`button[data-player="${player}"]`);
+                if (!btnQuery) return;
+                
+                const row = btnQuery.closest('li');
+                
+                row.querySelectorAll('.rsvp-btn').forEach(btn => {
+                    btn.className = "rsvp-btn px-3 py-1 rounded text-xs font-bold border border-gray-700 text-gray-500 hover:opacity-80 transition-colors";
+                });
+                
+                const activeBtn = row.querySelector(`button[data-status="${status}"]`);
+                if (status === 'yes') {
+                    activeBtn.className = "rsvp-btn px-3 py-1 rounded text-xs font-bold bg-neon/20 border border-neon text-neon";
+                } else if (status === 'no') {
+                    activeBtn.className = "rsvp-btn px-3 py-1 rounded text-xs font-bold bg-sunset/20 border border-sunset text-sunset";
+                } else {
+                    activeBtn.className = "rsvp-btn px-3 py-1 rounded text-xs font-bold bg-gray-700 border border-gray-500 text-white";
+                }
             });
-            
-            // Apply active color to the selected status
-            const activeBtn = row.querySelector(`button[data-status="${status}"]`);
-            if (status === 'yes') {
-                activeBtn.className = "rsvp-btn px-3 py-1 rounded text-xs font-bold bg-neon/20 border border-neon text-neon";
-            } else if (status === 'no') {
-                activeBtn.className = "rsvp-btn px-3 py-1 rounded text-xs font-bold bg-sunset/20 border border-sunset text-sunset";
-            } else {
-                activeBtn.className = "rsvp-btn px-3 py-1 rounded text-xs font-bold bg-gray-700 border border-gray-500 text-white";
-            }
         });
+    };
+
+    // Week switch event
+    weekSelect.addEventListener('change', (e) => {
+        currentWeekId = e.target.value;
+        bindWeekListener(currentWeekId);
     });
 
-    // 3. Write Clicks to Firebase
+    // Write button clicks to current week path
     rsvpList.addEventListener('click', (e) => {
         if (e.target.classList.contains('rsvp-btn')) {
             const player = e.target.dataset.player;
             const status = e.target.dataset.status;
-            set(ref(db, `rsvp/${player}`), status);
+            set(ref(db, `rsvp/${currentWeekId}/${player}`), status);
         }
     });
+
+    // Initial load
+    bindWeekListener(currentWeekId);
 };
 
 

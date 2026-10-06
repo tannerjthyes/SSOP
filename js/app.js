@@ -242,15 +242,15 @@ const initChart = () => {
     });
 };
 
-
 // ==========================================
-// 5. BULLETPROOF FIREBASE CHAT LOGIC
+// 5. BULLETPROOF & SORTED CHAT LOGIC
 // ==========================================
 const initChat = () => {
     const chatForm = document.getElementById('chat-form');
     const chatUsername = document.getElementById('chat-username');
     const chatMessage = document.getElementById('chat-message');
     const chatMessagesDiv = document.getElementById('chat-messages');
+    const submitBtn = document.getElementById('chat-submit-btn');
     
     const escapeHTML = str => { const div = document.createElement('div'); div.textContent = str; return div.innerHTML; };
     
@@ -263,7 +263,16 @@ const initChat = () => {
     onValue(messagesRef, (snapshot) => {
         chatMessagesDiv.innerHTML = '';
         const msgs = [];
-        snapshot.forEach(child => msgs.push(child.val()));
+        
+        snapshot.forEach((child) => {
+            const val = child.val();
+            if (val && typeof val === 'object' && val.text) {
+                msgs.push(val);
+            }
+        });
+
+        // Explicitly sort messages by timestamp oldest -> newest
+        msgs.sort((a, b) => (Number(a.timestamp) || 0) - (Number(b.timestamp) || 0));
 
         if (msgs.length === 0) {
             chatMessagesDiv.innerHTML = '<div class="text-center text-gray-500 text-sm mt-4 italic">No chat history yet. Send the first message!</div>';
@@ -271,14 +280,12 @@ const initChat = () => {
         }
 
         msgs.forEach(msg => {
-            // IGNORING CORRUPT ENTRIES: Skips completely broken objects or missing text
-            if (!msg || typeof msg !== 'object' || !msg.text) return; 
-
-            const safeUsername = msg.username ? String(msg.username) : "Unknown";
+            const safeUsername = msg.username ? String(msg.username) : "Anonymous";
             const safeText = String(msg.text);
-            const currentInputName = chatUsername.value ? chatUsername.value.trim() : "";
             
+            const currentInputName = chatUsername.value ? chatUsername.value.trim() : "";
             const isMe = currentInputName !== "" && safeUsername.toLowerCase() === currentInputName.toLowerCase();
+            
             const msgDiv = document.createElement('div');
             msgDiv.className = `flex flex-col ${isMe ? 'items-end' : 'items-start'} mb-3`;
             const bubbleClass = isMe ? 'bg-sunset/20 border border-sunset/30 text-white rounded-tl-xl rounded-tr-xl rounded-bl-xl' : 'bg-gray-800 border border-gray-700 text-gray-200 rounded-tl-xl rounded-tr-xl rounded-br-xl';
@@ -310,12 +317,27 @@ const initChat = () => {
 
     chatForm.addEventListener('submit', (e) => {
         e.preventDefault();
+        
         const username = chatUsername.value.trim();
         const text = chatMessage.value.trim();
+        
         if (username && text) {
-            push(messagesRef, { username, text, timestamp: Date.now() });
-            chatMessage.value = '';
-            chatMessage.focus();
+            const originalText = submitBtn.innerText;
+            submitBtn.innerText = '...';
+            submitBtn.disabled = true;
+
+            push(messagesRef, { username, text, timestamp: Date.now() })
+                .then(() => {
+                    chatMessage.value = '';
+                    chatMessage.focus();
+                })
+                .catch((error) => {
+                    alert("Message failed to send! \nError: " + error.message);
+                })
+                .finally(() => {
+                    submitBtn.innerText = originalText;
+                    submitBtn.disabled = false;
+                });
         }
     });
 };

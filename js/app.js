@@ -33,7 +33,8 @@ const recaps = [
         ],
         notes: [
             { title: "Food", text: "Buffalo Chicken Wraps – From Vince. Solid start to the year." },
-            { title: "Big action", text: "Tanner donating to G Mully + Lots of Bombs at the end of the night." }
+            { title: "Big action", text: "Tanner donating to G Mully + Lots of Bombs at the end of the night." },
+            { title: "Quote of the Night", "I need to go submit this IT Ticket." }
         ]
     }
 ];

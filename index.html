@@ -70,54 +70,20 @@
                     <div class="flex justify-between items-start mb-6 border-b border-gray-800 pb-4">
                         <div>
                             <h2 class="text-2xl font-bold text-white mb-1">Session Recap</h2>
-                            <p class="text-sunset font-mono text-sm">9/29/2026 — Session 1</p>
+                            <p id="recap-subtitle" class="text-sunset font-mono text-sm">Loading...</p>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button id="prev-recap" class="p-2 bg-gray-950 border border-gray-800 rounded-full hover:bg-gray-800 transition text-gray-400 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                            </button>
+                            <button id="next-recap" class="p-2 bg-gray-950 border border-gray-800 rounded-full hover:bg-gray-800 transition text-gray-400 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                            </button>
                         </div>
                     </div>
 
-                    <div class="space-y-6 text-gray-300">
-                        <p class="leading-relaxed">
-                            It was a cheerful night at Sully and everyone was in good spirits. Buffalo Chicken wraps were hot off the grill and ultras were flowing. Postseason baseball is here and so were a couple new faces. Some questions that were thrown out were will we ever see Mitch, Huske, or Carter. Will Blake ever play cards or want to eat with the boys?
-                        </p>
-                        
-                        <div class="bg-gray-950 p-4 rounded-xl border-l-4 border-sunset italic text-gray-400 font-serif">
-                            <span class="text-sunset text-2xl font-sans leading-none block mb-2">"</span>
-                            The beautiful thing about poker is that everybody thinks they can play. <br>
-                            <span class="text-sm font-sans font-bold text-gray-500 mt-2 block">— Chris Moneymaker (Quote of the Day)</span>
-                        </div>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
-                            <!-- Highlights -->
-                            <div>
-                                <h3 class="text-neon font-bold uppercase tracking-wider text-sm mb-3 flex items-center">
-                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                                    Highlights
-                                </h3>
-                                <ul class="space-y-2 text-sm">
-                                    <li class="flex items-start"><span class="text-sunset mr-2">•</span> THE FELLAS HAVING A GOOD TIME</li>
-                                    <li class="flex items-start"><span class="text-sunset mr-2">•</span> Buffalo Chicken Wraps</li>
-                                    <li class="flex items-start"><span class="text-sunset mr-2">•</span> Everyone helping Mr. Sully clean up – much appreciated</li>
-                                </ul>
-                            </div>
-                            <!-- Lowlights -->
-                            <div>
-                                <h3 class="text-sunset font-bold uppercase tracking-wider text-sm mb-3 flex items-center">
-                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                                    Lowlights
-                                </h3>
-                                <ul class="space-y-2 text-sm">
-                                    <li class="flex items-start"><span class="text-sunset mr-2">•</span> IT Tickets</li>
-                                    <li class="flex items-start"><span class="text-sunset mr-2">•</span> N8 Complaining about the Thyes Mafia stealing his money</li>
-                                    <li class="flex items-start"><span class="text-sunset mr-2">•</span> Watt Irish goodbye</li>
-                                </ul>
-                            </div>
-                        </div>
-
-                        <div class="mt-4 bg-gray-950/50 p-4 rounded-xl border border-gray-800">
-                            <h3 class="text-white font-bold mb-2">Notes 📝</h3>
-                            <p class="text-sm mb-1"><strong class="text-gray-400">Food:</strong> Buffalo Chicken Wraps – From Vince. Solid start to the year.</p>
-                            <p class="text-sm"><strong class="text-gray-400">Big action:</strong> Tanner donating to G Mully + Lots of Bombs at the end of the night.</p>
-                        </div>
-                    </div>
+                    <!-- Recap Content dynamically rendered here -->
+                    <div id="recap-container" class="space-y-6 text-gray-300 min-h-[300px]"></div>
                 </section>
 
                 <section class="bg-gray-900 border border-gray-800 rounded-2xl p-6 card-hover">
@@ -226,40 +192,8 @@
                     </h2>
                     
                     <div class="bg-gray-950 rounded-xl border border-gray-800 overflow-hidden">
-                        <ul class="divide-y divide-gray-800/50 text-sm">
-                            <li class="flex justify-between items-center p-3 hover:bg-gray-800/30">
-                                <span class="text-gray-400 font-mono uppercase text-xs">Next week</span>
-                                <span class="font-bold text-white bg-sunset/20 text-sunset px-2 py-0.5 rounded">N8</span>
-                            </li>
-                            <li class="flex justify-between items-center p-3 hover:bg-gray-800/30">
-                                <span class="text-gray-400 font-mono uppercase text-xs">On Deck</span>
-                                <span class="font-bold text-white">Watt</span>
-                            </li>
-                            <li class="flex justify-between items-center p-3 hover:bg-gray-800/30 border-b-2 border-b-gray-700">
-                                <span class="text-gray-400 font-mono uppercase text-xs">In the HOLE</span>
-                                <span class="font-bold text-white">Owen</span>
-                            </li>
-                            <li class="flex justify-between items-center p-3 hover:bg-gray-800/30">
-                                <span class="text-gray-500 font-mono w-6 text-center">4</span>
-                                <span class="text-gray-300">Brooks</span>
-                            </li>
-                            <li class="flex justify-between items-center p-3 hover:bg-gray-800/30">
-                                <span class="text-gray-500 font-mono w-6 text-center">5</span>
-                                <span class="text-gray-300">Thyes</span>
-                            </li>
-                            <li class="flex justify-between items-center p-3 hover:bg-gray-800/30">
-                                <span class="text-gray-500 font-mono w-6 text-center">6</span>
-                                <span class="text-gray-300">Mau</span>
-                            </li>
-                            <li class="flex justify-between items-center p-3 hover:bg-gray-800/30">
-                                <span class="text-gray-500 font-mono w-6 text-center">7</span>
-                                <span class="text-gray-300">G Mully</span>
-                            </li>
-                            <li class="flex justify-between items-center p-3 hover:bg-gray-800/30">
-                                <span class="text-gray-500 font-mono w-6 text-center">8</span>
-                                <span class="text-gray-300">Vince</span>
-                            </li>
-                        </ul>
+                        <!-- Food order dynamically rendered here -->
+                        <ul id="food-order-list" class="divide-y divide-gray-800/50 text-sm"></ul>
                     </div>
                 </section>
 

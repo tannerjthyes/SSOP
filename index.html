@@ -207,13 +207,18 @@
                     </div>
                 </section>
 
-                <!-- Live RSVP -->
+                <!-- Live RSVP (Weekly Segregated) -->
                 <section class="bg-gray-900 border border-gray-800 rounded-2xl p-6 card-hover">
-                    <h2 class="text-xl font-bold text-white mb-4 flex items-center border-b border-gray-800 pb-2">
-                        <svg class="w-5 h-5 mr-2 text-neon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
-                        Live RSVP
-                    </h2>
-                    <div class="bg-gray-950 rounded-xl border border-gray-800 overflow-hidden max-h-[250px] overflow-y-auto">
+                    <div class="flex justify-between items-center border-b border-gray-800 pb-2 mb-4">
+                        <h2 class="text-xl font-bold text-white flex items-center">
+                            <svg class="w-5 h-5 mr-2 text-neon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+                            Live RSVP
+                        </h2>
+                        <select id="rsvp-week-select" class="bg-gray-950 border border-gray-700 text-xs text-sunset font-mono rounded px-2 py-1 outline-none focus:border-sunset">
+                            <!-- Populated dynamically via app.js -->
+                        </select>
+                    </div>
+                    <div class="bg-gray-950 rounded-xl border border-gray-800 overflow-hidden max-h-[300px] overflow-y-auto">
                         <ul id="rsvp-list" class="divide-y divide-gray-800/50 text-sm"></ul>
                     </div>
                 </section>

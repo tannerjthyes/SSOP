@@ -255,7 +255,7 @@ const initChart = () => {
 
 
 // ==========================================
-// 5. FIREBASE CHAT LOGIC (WITH FAIL-SAFES)
+// 5. BULLETPROOF FIREBASE CHAT LOGIC
 // ==========================================
 const initChat = () => {
     const chatForm = document.getElementById('chat-form');
@@ -282,22 +282,29 @@ const initChat = () => {
         }
 
         msgs.forEach(msg => {
-            // Fail-safe: Skip completely broken entries (e.g. nulls caused by manual deletions)
-            if (!msg || typeof msg !== 'object') return; 
+            // FATAL ERROR FIX: Completely ignore corrupted/empty entries
+            if (!msg || typeof msg !== 'object' || !msg.text) return; 
 
-            // Fail-safe: Ensure fields are read as strings to prevent .toLowerCase() crashes
             const safeUsername = msg.username ? String(msg.username) : "Unknown";
-            const safeText = msg.text ? String(msg.text) : "";
+            const safeText = String(msg.text);
+            const currentInputName = chatUsername.value ? chatUsername.value.trim() : "";
             
-            const isMe = chatUsername.value && safeUsername.toLowerCase() === chatUsername.value.toLowerCase();
+            const isMe = currentInputName !== "" && safeUsername.toLowerCase() === currentInputName.toLowerCase();
             const msgDiv = document.createElement('div');
             msgDiv.className = `flex flex-col ${isMe ? 'items-end' : 'items-start'} mb-3`;
             const bubbleClass = isMe ? 'bg-sunset/20 border border-sunset/30 text-white rounded-tl-xl rounded-tr-xl rounded-bl-xl' : 'bg-gray-800 border border-gray-700 text-gray-200 rounded-tl-xl rounded-tr-xl rounded-br-xl';
             const nameColor = isMe ? 'text-sunset' : 'text-neon';
             
-            // Fail-safe: Fallback to current time if timestamp is corrupted
-            const timeObj = msg.timestamp ? new Date(msg.timestamp) : new Date();
-            const timeStr = timeObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            // FATAL ERROR FIX: Safely parse weird string timestamps or default to blank
+            let timeStr = "";
+            try {
+                const ts = Number(msg.timestamp); 
+                if (!isNaN(ts) && ts > 0) {
+                    timeStr = new Date(ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                }
+            } catch (e) {
+                timeStr = ""; 
+            }
             
             msgDiv.innerHTML = `
                 <div class="flex items-baseline space-x-2 mb-1 px-1">
@@ -310,7 +317,6 @@ const initChat = () => {
             `;
             chatMessagesDiv.appendChild(msgDiv);
         });
-        
         chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
     });
 

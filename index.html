@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SSOP Poker Dashboard</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <!-- Chart.js for the Season Leaderboard -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <header class="gradient-border">
+        <h1>SSOP Poker Dashboard</h1>
+        <p>In memory of Connor Krause.</p>
+    </header>
+
+    <main>
+        <section id="recap" class="card">
+            <h2>SSOP Recap — [9/29/2026 Session 1]</h2>
+            <div class="content-block">
+                <p><strong>Summary:</strong> It was a cheerful night at Sully and everyone was in good spirits. Buffalo Chicken wraps were hot off the grill and ultras were flowing. Postseason baseball is here and so were a couple new faces. Some questions that were thrown out were will we ever see Mitch, Huske, or Carter. Will Blake ever play cards or want to eat with the boys?</p>
+                <p><strong>Quote of the day:</strong> "The beautiful thing about poker is that everybody thinks they can play." - Chris Moneymaker</p>
+            </div>
+            
+            <div class="split-layout">
+                <div class="lists">
+                    <h3>Highlights</h3>
+                    <ul>
+                        <li>THE FELLAS HAVING A GOOD TIME</li>
+                        <li>Buffalo Chicken Wraps</li>
+                        <li>Everyone helping Mr. Sully clean up – much appreciated</li>
+                    </ul>
+                    <h3>Lowlights</h3>
+                    <ul>
+                        <li>IT Tickets</li>
+                        <li>N8 Complaining about the Thyes Mafia stealing his money</li>
+                        <li>Watt Irish goodbye</li>
+                    </ul>
+                </div>
+                <div class="duties">
+                    <h3>Next Week</h3>
+                    <ul>
+                        <li><strong>Food:</strong> N8</li>
+                        <li><strong>On deck:</strong> Watt</li>
+                        <li><strong>In the hole:</strong> Owen</li>
+                        <li><strong>Beer rotation:</strong> Thank you to Watt for bringing Brews, AT will bring next week</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="leaderboards" class="card">
+            <h2>Weekly Leaderboard</h2>
+            <div class="table-container">
+                <table id="weekly-ledger">
+                    <thead>
+                        <tr>
+                            <th>Player</th>
+                            <th>Buy In</th>
+                            <th>Rebuy</th>
+                            <th>Chip count</th>
+                            <th>Total up/(down)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ledger-body">
+                        <!-- Populated via app.js -->
+                    </tbody>
+                </table>
+            </div>
+
+            <h2>Season Leaderboard</h2>
+            <div class="chart-container">
+                <canvas id="seasonChart"></canvas>
+            </div>
+        </section>
+
+        <section id="live-chat" class="card">
+            <h2>Live Trash Talk</h2>
+            <div id="chat-window">
+                <ul id="chat-messages"></ul>
+            </div>
+            <form id="chat-form">
+                <input type="text" id="chat-input" placeholder="Enter your message..." autocomplete="off" required>
+                <button type="submit">Send</button>
+            </form>
+        </section>
+    </main>
+
+    <!-- Firebase SDKs -->
+    <script type="module" src="js/firebase-config.js"></script>
+    <script type="module" src="js/app.js"></script>
+</body>
+</html>

@@ -9,8 +9,8 @@ const recaps = [
         date: "10/6/2026",
         session: 2,
         summary: "This is a placeholder for Session 2",
-        quote: "You can't lose what you don't put in the middle.",
-        quoteAuthor: "Mike McDermott",
+        quote: "You can't lose what you don't put in the middle. But you can't win much either",
+        quoteAuthor: "Mike McDermott - Rounders",
         highlights: ["TBD", "TBD"],
         lowlights: ["TBD"],
         notes: [{ title: "Food", text: "Enchiladas. 6lbs Ground Beef. La Conquistadora Guac - Watt Approved." }]

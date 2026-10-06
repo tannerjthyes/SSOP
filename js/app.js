@@ -138,19 +138,8 @@ const initRSVP = () => {
     const weekSelect = document.getElementById('rsvp-week-select');
     
     const roster = [
-        "Austin", 
-        "Blake", 
-        "Brooks", 
-        "Carter", 
-        "Grant", 
-        "Huske", 
-        "Mau", 
-        "Mitch", 
-        "N8", 
-        "Owen", 
-        "Tanner", 
-        "Vince", 
-        "Watt"
+        "Austin", "Blake", "Brooks", "Carter", "Grant", "Huske", 
+        "Mau", "Mitch", "N8", "Owen", "Tanner", "Vince", "Watt"
     ];
 
     const sessions = [
@@ -282,7 +271,7 @@ const initChat = () => {
         }
 
         msgs.forEach(msg => {
-            // FATAL ERROR FIX: Completely ignore corrupted/empty entries
+            // IGNORING CORRUPT ENTRIES: Skips completely broken objects or missing text
             if (!msg || typeof msg !== 'object' || !msg.text) return; 
 
             const safeUsername = msg.username ? String(msg.username) : "Unknown";
@@ -295,7 +284,6 @@ const initChat = () => {
             const bubbleClass = isMe ? 'bg-sunset/20 border border-sunset/30 text-white rounded-tl-xl rounded-tr-xl rounded-bl-xl' : 'bg-gray-800 border border-gray-700 text-gray-200 rounded-tl-xl rounded-tr-xl rounded-br-xl';
             const nameColor = isMe ? 'text-sunset' : 'text-neon';
             
-            // FATAL ERROR FIX: Safely parse weird string timestamps or default to blank
             let timeStr = "";
             try {
                 const ts = Number(msg.timestamp); 

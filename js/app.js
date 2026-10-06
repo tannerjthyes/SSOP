@@ -1,5 +1,5 @@
 import { db } from './firebase-config.js';
-import { ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-database.js";
+import { ref, push, onValue, set } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-database.js";
 
 // ==========================================
 // 1. DYNAMIC RECAP CAROUSEL
@@ -11,16 +11,9 @@ const recaps = [
         summary: "This is a placeholder for Session 2. Add your summary here!",
         quote: "You can't lose what you don't put in the middle.",
         quoteAuthor: "Mike McDermott",
-        highlights: [
-            "TBD",
-            "TBD"
-        ],
-        lowlights: [
-            "TBD"
-        ],
-        notes: [
-            { title: "Food", text: "TBD" }
-        ]
+        highlights: ["TBD", "TBD"],
+        lowlights: ["TBD"],
+        notes: [{ title: "Food", text: "TBD" }]
     },
     {
         date: "9/29/2026",
@@ -52,9 +45,7 @@ const renderRecap = () => {
     document.getElementById('recap-subtitle').textContent = `${recap.date} — Session ${recap.session}`;
     
     document.getElementById('recap-container').innerHTML = `
-        <p class="leading-relaxed text-gray-300">
-            ${recap.summary}
-        </p>
+        <p class="leading-relaxed text-gray-300">${recap.summary}</p>
         
         <div class="bg-gray-950 p-4 rounded-xl border-l-4 border-sunset italic text-gray-400 font-serif">
             <span class="text-sunset text-2xl font-sans leading-none block mb-2">"</span>
@@ -89,32 +80,24 @@ const renderRecap = () => {
         </div>
     `;
 
-    // Manage button states
     document.getElementById('prev-recap').disabled = currentRecapIndex === recaps.length - 1;
     document.getElementById('next-recap').disabled = currentRecapIndex === 0;
 };
 
 document.getElementById('prev-recap').addEventListener('click', () => {
-    if (currentRecapIndex < recaps.length - 1) {
-        currentRecapIndex++;
-        renderRecap();
-    }
+    if (currentRecapIndex < recaps.length - 1) { currentRecapIndex++; renderRecap(); }
 });
 
 document.getElementById('next-recap').addEventListener('click', () => {
-    if (currentRecapIndex > 0) {
-        currentRecapIndex--;
-        renderRecap();
-    }
+    if (currentRecapIndex > 0) { currentRecapIndex--; renderRecap(); }
 });
 
+
 // ==========================================
-// 2. AUTOMATED FOOD ORDER ROTATION
+// 2. AUTOMATED FOOD ORDER
 // ==========================================
 const renderFoodOrder = () => {
     const baseOrder = ["N8", "Watt", "Owen", "Brooks", "Thyes", "Mau", "G Mully", "Vince"];
-    
-    // Set anchor to midnight local time to avoid mid-day shifts
     const anchorDate = new Date("2026-10-06T00:00:00"); 
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -123,7 +106,6 @@ const renderFoodOrder = () => {
     const weeksPassed = Math.max(0, Math.floor(diffDays / 7));
     const shiftAmount = weeksPassed % baseOrder.length;
     
-    // Rotate array based on weeks passed
     const currentOrder = [...baseOrder.slice(shiftAmount), ...baseOrder.slice(0, shiftAmount)];
 
     document.getElementById('food-order-list').innerHTML = `
@@ -147,8 +129,98 @@ const renderFoodOrder = () => {
     `;
 };
 
+
 // ==========================================
-// 3. LEADERBOARD CHART
+// 3. M.I.A TRACKER (ABSENCE COUNTER)
+// ==========================================
+const renderMIATracker = () => {
+    const miaList = document.getElementById('mia-list');
+    
+    // Update these numbers weekly alongside the recap manually
+    const miaData = [
+        { name: "Carter", weeks: 12, label: "Presumed Lost" },
+        { name: "Huske", weeks: 8, label: "M.I.A." },
+        { name: "Mitch", weeks: 4, label: "AWOL" },
+        { name: "Blake", weeks: 2, label: "Cards: No | Food: Pending" }
+    ];
+
+    miaList.innerHTML = miaData.sort((a, b) => b.weeks - a.weeks).map(p => `
+        <li class="flex justify-between items-center p-3 hover:bg-gray-800/30">
+            <div>
+                <span class="font-bold text-white block">${p.name}</span>
+                <span class="text-[10px] uppercase tracking-wider text-sunset font-mono">${p.label}</span>
+            </div>
+            <div class="text-right">
+                <span class="text-2xl font-bold ${p.weeks >= 5 ? 'text-sunset' : 'text-gray-400'}">${p.weeks}</span>
+                <span class="text-xs text-gray-500 block">WEEKS</span>
+            </div>
+        </li>
+    `).join('');
+};
+
+
+// ==========================================
+// 4. LIVE RSVP TRACKER (FIREBASE)
+// ==========================================
+const initRSVP = () => {
+    const rsvpList = document.getElementById('rsvp-list');
+    const roster = ["AT", "Austin", "Blake", "Brooks", "Carter", "G Mully", "Grant", "Huske", "Mau", "Mitch", "N8", "Owen", "Sully", "Tanner", "Vince", "Watt"];
+    
+    // 1. Build Initial DOM (all set to '?')
+    rsvpList.innerHTML = roster.map(player => `
+        <li class="flex justify-between items-center p-3 hover:bg-gray-800/30">
+            <span class="font-bold text-gray-300 w-1/3">${player}</span>
+            <div class="flex space-x-1 w-2/3 justify-end">
+                <button data-player="${player}" data-status="yes" class="rsvp-btn px-3 py-1 rounded text-xs font-bold border border-gray-700 text-gray-500 hover:border-neon hover:text-neon transition-colors">In</button>
+                <button data-player="${player}" data-status="pending" class="rsvp-btn px-3 py-1 rounded text-xs font-bold border border-gray-700 text-gray-500 hover:border-gray-300 hover:text-gray-300 transition-colors">?</button>
+                <button data-player="${player}" data-status="no" class="rsvp-btn px-3 py-1 rounded text-xs font-bold border border-gray-700 text-gray-500 hover:border-sunset hover:text-sunset transition-colors">Out</button>
+            </div>
+        </li>
+    `).join('');
+
+    // 2. Sync with Firebase
+    const rsvpRef = ref(db, 'rsvp');
+    
+    onValue(rsvpRef, (snapshot) => {
+        const data = snapshot.val() || {};
+        
+        roster.forEach(player => {
+            const status = data[player] || 'pending';
+            const btnQuery = rsvpList.querySelector(`button[data-player="${player}"]`);
+            if (!btnQuery) return; // Skip if player not found in UI
+            
+            const row = btnQuery.closest('li');
+            
+            // Reset all buttons in row to default gray
+            row.querySelectorAll('.rsvp-btn').forEach(btn => {
+                btn.className = "rsvp-btn px-3 py-1 rounded text-xs font-bold border border-gray-700 text-gray-500 hover:opacity-80 transition-colors";
+            });
+            
+            // Apply active color to the selected status
+            const activeBtn = row.querySelector(`button[data-status="${status}"]`);
+            if (status === 'yes') {
+                activeBtn.className = "rsvp-btn px-3 py-1 rounded text-xs font-bold bg-neon/20 border border-neon text-neon";
+            } else if (status === 'no') {
+                activeBtn.className = "rsvp-btn px-3 py-1 rounded text-xs font-bold bg-sunset/20 border border-sunset text-sunset";
+            } else {
+                activeBtn.className = "rsvp-btn px-3 py-1 rounded text-xs font-bold bg-gray-700 border border-gray-500 text-white";
+            }
+        });
+    });
+
+    // 3. Write Clicks to Firebase
+    rsvpList.addEventListener('click', (e) => {
+        if (e.target.classList.contains('rsvp-btn')) {
+            const player = e.target.dataset.player;
+            const status = e.target.dataset.status;
+            set(ref(db, `rsvp/${player}`), status);
+        }
+    });
+};
+
+
+// ==========================================
+// 5. LEADERBOARD CHART
 // ==========================================
 const initChart = () => {
     const ctx = document.getElementById('seasonChart').getContext('2d');
@@ -179,8 +251,9 @@ const initChart = () => {
     });
 };
 
+
 // ==========================================
-// 4. FIREBASE CHAT LOGIC
+// 6. FIREBASE CHAT LOGIC
 // ==========================================
 const initChat = () => {
     const chatForm = document.getElementById('chat-form');
@@ -188,11 +261,7 @@ const initChat = () => {
     const chatMessage = document.getElementById('chat-message');
     const chatMessagesDiv = document.getElementById('chat-messages');
     
-    const escapeHTML = str => {
-        const div = document.createElement('div');
-        div.textContent = str;
-        return div.innerHTML;
-    };
+    const escapeHTML = str => { const div = document.createElement('div'); div.textContent = str; return div.innerHTML; };
     
     const savedName = localStorage.getItem('ssop_username');
     if (savedName) chatUsername.value = savedName;
@@ -245,10 +314,12 @@ const initChat = () => {
     });
 };
 
-// Initialize everything
+// Initialize everything on page load
 document.addEventListener('DOMContentLoaded', () => {
     renderRecap();
     renderFoodOrder();
+    renderMIATracker();
+    initRSVP();
     initChart();
     initChat();
 });

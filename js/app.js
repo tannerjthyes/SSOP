@@ -1,105 +1,147 @@
 import { db } from './firebase-config.js';
-import { ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-database.js";
+import { ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-database.js";
 
-// --- Leaderboard Data & Logic ---
-const ledgerData = [
-    { name: "Austin", buyIn: 40, rebuy: 0, chips: 58.25, total: 18.25 },
-    { name: "Mitch", buyIn: 0, rebuy: 0, chips: 0, total: 0 },
-    { name: "Vince", buyIn: 40, rebuy: 0, chips: 0, total: -40.00 },
-    { name: "Nate", buyIn: 40, rebuy: 0, chips: 0, total: -40.00 },
-    { name: "Brooks", buyIn: 40, rebuy: 0, chips: 104.5, total: 64.50 },
-    { name: "Blake", buyIn: 0, rebuy: 0, chips: 0, total: 0 },
-    { name: "Tanner", buyIn: 40, rebuy: 0, chips: 16.5, total: -23.50 },
-    { name: "Grant", buyIn: 40, rebuy: 0, chips: 90.75, total: 50.75 },
-    { name: "Owen", buyIn: 40, rebuy: 60, chips: 70, total: -30.00 }
-];
-
-function renderTable() {
-    const tbody = document.getElementById('ledger-body');
-    ledgerData.forEach(player => {
-        const tr = document.createElement('tr');
-        const totalClass = player.total > 0 ? 'positive' : (player.total < 0 ? 'negative' : '');
-        
-        tr.innerHTML = `
-            <td>${player.name}</td>
-            <td>${player.buyIn || ''}</td>
-            <td>${player.rebuy || ''}</td>
-            <td>${player.chips || ''}</td>
-            <td class="${totalClass}">$${player.total.toFixed(2)}</td>
-        `;
-        tbody.appendChild(tr);
-    });
-}
-
-function renderChart() {
+// --- Leaderboard Chart ---
+const initChart = () => {
     const ctx = document.getElementById('seasonChart').getContext('2d');
-    const labels = ledgerData.map(p => p.name);
-    const data = ledgerData.map(p => p.total);
-
-    // Apply color styling matching the CSS variables
-    const bgColors = data.map(val => val >= 0 ? '#39ff14' : '#ff6b6b');
+    
+    const players = ['Austin', 'Mitch', 'Vince', 'Nate', 'Brooks', 'Blake', 'Tanner', 'Grant', 'Owen'];
+    const scores = [18.25, 0, -40, -40, 64.50, 0, -23.50, 50.75, -30];
+    
+    const backgroundColors = scores.map(score => score >= 0 ? 'rgba(57, 255, 20, 0.7)' : 'rgba(255, 78, 0, 0.7)');
+    const borderColors = scores.map(score => score >= 0 ? 'rgba(57, 255, 20, 1)' : 'rgba(255, 78, 0, 1)');
 
     new Chart(ctx, {
         type: 'bar',
         data: {
-            labels: labels,
+            labels: players,
             datasets: [{
                 label: 'Season Total ($)',
-                data: data,
-                backgroundColor: bgColors,
-                borderRadius: 4
+                data: scores,
+                backgroundColor: backgroundColors,
+                borderColor: borderColors,
+                borderWidth: 1,
+                borderRadius: 4,
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let value = context.raw;
+                            return value < 0 ? `-$${Math.abs(value).toFixed(2)}` : `$${value.toFixed(2)}`;
+                        }
+                    }
+                }
+            },
             scales: {
                 y: {
-                    grid: { color: '#333' },
-                    ticks: { color: '#a0a0a0' }
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.1)',
+                        zeroLineColor: 'rgba(255, 255, 255, 0.3)'
+                    },
+                    ticks: {
+                        color: '#9ca3af',
+                        font: { family: "'JetBrains Mono', monospace" },
+                        callback: function(value) { return value; }
+                    }
                 },
                 x: {
                     grid: { display: false },
-                    ticks: { color: '#a0a0a0' }
+                    ticks: { color: '#9ca3af' }
                 }
-            },
-            plugins: {
-                legend: { display: false }
             }
         }
     });
-}
+};
+
+document.addEventListener('DOMContentLoaded', initChart);
 
 // --- Firebase Chat Logic ---
-const messagesRef = ref(db, 'messages');
 const chatForm = document.getElementById('chat-form');
-const chatInput = document.getElementById('chat-input');
-const chatMessages = document.getElementById('chat-messages');
-const chatWindow = document.getElementById('chat-window');
+const chatUsername = document.getElementById('chat-username');
+const chatMessage = document.getElementById('chat-message');
+const chatMessagesDiv = document.getElementById('chat-messages');
 
-// Listen for new messages
-onChildAdded(messagesRef, (snapshot) => {
-    const data = snapshot.val();
-    const li = document.createElement('li');
-    // Using a generic "Player" prefix for now. You can add a name input field later!
-    li.textContent = `Player: ${data.text}`;
-    chatMessages.appendChild(li);
-    chatWindow.scrollTop = chatWindow.scrollHeight;
+// Format timestamps
+const formatTime = (ts) => {
+    const date = new Date(ts);
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+};
+
+// Prevent HTML injection
+const escapeHTML = (str) => {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+};
+
+// Save name to localStorage
+const savedName = localStorage.getItem('ssop_username');
+if (savedName) chatUsername.value = savedName;
+chatUsername.addEventListener('change', (e) => {
+    localStorage.setItem('ssop_username', e.target.value.trim());
+});
+
+// Sync messages from Realtime Database
+const messagesRef = ref(db, 'messages');
+
+onValue(messagesRef, (snapshot) => {
+    chatMessagesDiv.innerHTML = '';
+    const msgs = [];
+    
+    snapshot.forEach((childSnapshot) => {
+        msgs.push(childSnapshot.val());
+    });
+
+    if (msgs.length === 0) {
+        chatMessagesDiv.innerHTML = '<div class="text-center text-gray-500 text-sm mt-4 italic">No trash talk yet. Send the first shot!</div>';
+        return;
+    }
+
+    msgs.forEach(msg => {
+        const isMe = chatUsername.value && msg.username && msg.username.toLowerCase() === chatUsername.value.toLowerCase();
+        const msgDiv = document.createElement('div');
+        msgDiv.className = `flex flex-col ${isMe ? 'items-end' : 'items-start'} mb-3`;
+        
+        const bubbleClass = isMe 
+            ? 'bg-sunset/20 border border-sunset/30 text-white rounded-tl-xl rounded-tr-xl rounded-bl-xl' 
+            : 'bg-gray-800 border border-gray-700 text-gray-200 rounded-tl-xl rounded-tr-xl rounded-br-xl';
+        const nameColor = isMe ? 'text-sunset' : 'text-neon';
+        const displayName = msg.username || "Unknown Player";
+
+        msgDiv.innerHTML = `
+            <div class="flex items-baseline space-x-2 mb-1 px-1">
+                <span class="text-xs font-bold ${nameColor}">${escapeHTML(displayName)}</span>
+                <span class="text-[10px] text-gray-500">${formatTime(msg.timestamp)}</span>
+            </div>
+            <div class="px-3 py-2 max-w-[85%] text-sm shadow-sm ${bubbleClass} break-words">
+                ${escapeHTML(msg.text)}
+            </div>
+        `;
+        chatMessagesDiv.appendChild(msgDiv);
+    });
+    
+    chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
 });
 
 // Send new message
 chatForm.addEventListener('submit', (e) => {
     e.preventDefault();
-    const text = chatInput.value.trim();
-    if (text) {
+    const username = chatUsername.value.trim();
+    const text = chatMessage.value.trim();
+    
+    if (username && text) {
         push(messagesRef, {
+            username: username,
             text: text,
             timestamp: Date.now()
         });
-        chatInput.value = '';
+        chatMessage.value = '';
+        chatMessage.focus();
     }
 });
-
-// Initialize
-renderTable();
-renderChart();

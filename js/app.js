@@ -67,7 +67,7 @@ const recaps = [
             { player: "Vince", buyIn: "40", rebuy: "-", chips: "-", total: -40.00 },
             { player: "Nate", buyIn: "40", rebuy: "-", chips: "-", total: -40.00 },
             { player: "Brooks", buyIn: "40", rebuy: "-", chips: "104.5", total: 64.50 },
-            { player: "Blake", buyIn: "-", rebuy: "-", chips: "-", total: 0 },
+            { player: "Blake", buyIn: "0", rebuy: "-", chips: "0", total: 0 },
             { player: "Tanner", buyIn: "40", rebuy: "-", chips: "16.5", total: -23.50 },
             { player: "Grant", buyIn: "40", rebuy: "-", chips: "90.75", total: 50.75 },
             { player: "Owen", buyIn: "40", rebuy: "60", chips: "70", total: -30.00 }
@@ -276,6 +276,12 @@ const initRSVP = () => {
     weekSelect.addEventListener('change', (e) => {
         currentWeekId = e.target.value;
         bindWeekListener(currentWeekId);
+    });
+
+    rsvpList.addEventListener('click', (e) => {
+        if (e.target.classList.contains('rsvp-btn')) {
+            set(ref(db, `rsvp/${currentWeekId}/${e.target.dataset.player}`), e.target.dataset.status);
+        }
     });
 
     bindWeekListener(currentWeekId);

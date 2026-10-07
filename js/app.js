@@ -8,12 +8,27 @@ const recaps = [
     {
         date: "10/6/2026",
         session: 2,
-        summary: "This is a placeholder for Session 2",
-        quote: "You can't lose what you don't put in the middle. But you can't win much either",
-        quoteAuthor: "Mike McDermott - Rounders",
-        highlights: ["TBD", "TBD"],
-        lowlights: ["TBD"],
-        notes: [{ title: "Food", text: "Enchiladas. 6lbs Ground Beef. La Conquistadora Guac - Watt Approved." }]
+        summary: "The house was packed as we set a record number of attendees. Mau and AT were grinding on the stove. The EX fldp’s were giving each other putting lessons while the current fldp’s were getting taught how to play poker. Tanner Thyes lost 60 in bombs as Brooks had the luck on his side",
+        quote: "You don’t gamble to win. You gamble so you can gamble the next day.",
+        quoteAuthor: "Bert Ambrose",
+        highlights: [
+            "THE FELLAS HAVING A GOOD TIME",
+            "Minnie, Mitch, Carter, Huske showing up",
+            "Watt non Irish goodbye",
+            "MODELOS"
+        ],
+        lowlights: [
+            "Hank eating an enchilada",
+            "N8 Can’t count his chips right - 3 people audited",
+            "Brewers",
+            "Thyes boys net loser…."
+        ],
+        notes: [
+            { title: "Food", text: "Echiladas + guac + rice – From N8. Thank you to mau for helping" },
+            { title: "Big action", text: "Owen Big Winner + Lots of Bombs at the end of the night. Carter seemed to be in every pot!" },
+            { title: "Quote of the night", text: "“Should I put all my polymarket winnings on the brewers” – Any guesses who????" },
+            { title: "Beer rotation", text: "Thank you to Huske for bringing Brews" }
+        ]
     },
     {
         date: "9/29/2026",
@@ -33,8 +48,7 @@ const recaps = [
         ],
         notes: [
             { title: "Food", text: "Buffalo Chicken Wraps – From Vince. Solid start to the year." },
-            { title: "Big action", text: "Tanner donating to G Mully + Lots of Bombs at the end of the night." },
-            { title: "Quote of the Night", text: ' "I need to go submit this IT Ticket." ' }
+            { title: "Big action", text: "Tanner donating to G Mully + Lots of Bombs at the end of the night." }
         ]
     }
 ];
@@ -99,7 +113,7 @@ document.getElementById('next-recap').addEventListener('click', () => {
 // ==========================================
 const renderFoodOrder = () => {
     const baseOrder = ["N8", "Watt", "Owen", "Brooks", "Thyes", "Mau", "G Mully", "Vince"];
-    const anchorDate = new Date("2026-10-06T00:00:00"); 
+    const anchorDate = new Date("2026-09-29T00:00:00"); 
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
@@ -132,14 +146,15 @@ const renderFoodOrder = () => {
 
 
 // ==========================================
-// 3. LIVE RSVP TRACKER (WEEKLY SEGREGATED)
+// 3. LIVE RSVP TRACKER
 // ==========================================
 const initRSVP = () => {
     const rsvpList = document.getElementById('rsvp-list');
     const weekSelect = document.getElementById('rsvp-week-select');
     
+    // Huske and Elliot consolidated under Elliot
     const roster = [
-        "Austin", "Blake", "Brooks", "Carter", "Grant", "Huske", 
+        "Austin", "Blake", "Brooks", "Carter", "Elliot", "Grant", 
         "Mau", "Mitch", "N8", "Owen", "Tanner", "Vince", "Watt"
     ];
 
@@ -212,12 +227,13 @@ const initRSVP = () => {
 
 
 // ==========================================
-// 4. LEADERBOARD CHART
+// 4. LEADERBOARD CHART (UPDATED SCORES)
 // ==========================================
 const initChart = () => {
     const ctx = document.getElementById('seasonChart').getContext('2d');
-    const players = ['Austin', 'Mitch', 'Vince', 'Nate', 'Brooks', 'Blake', 'Tanner', 'Grant', 'Owen'];
-    const scores = [18.25, 0, -40, -40, 64.50, 0, -23.50, 50.75, -30];
+    
+    const players = ['Austin', 'Vince', 'Nate', 'Brooks', 'Tanner', 'Grant', 'Owen', 'Carter', 'Elliot'];
+    const scores = [36.25, -30.00, -10.50, 78.25, -92.50, 50.75, 20.00, -12.25, -40.00];
     
     const bgColors = scores.map(s => s >= 0 ? 'rgba(57, 255, 20, 0.7)' : 'rgba(255, 78, 0, 0.7)');
     const bdColors = scores.map(s => s >= 0 ? 'rgba(57, 255, 20, 1)' : 'rgba(255, 78, 0, 1)');
@@ -242,6 +258,7 @@ const initChart = () => {
         }
     });
 };
+
 
 // ==========================================
 // 5. BULLETPROOF & SORTED CHAT LOGIC

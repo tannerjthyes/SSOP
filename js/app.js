@@ -152,7 +152,6 @@ const initRSVP = () => {
     const rsvpList = document.getElementById('rsvp-list');
     const weekSelect = document.getElementById('rsvp-week-select');
     
-    // Huske and Elliot consolidated under Elliot
     const roster = [
         "Austin", "Blake", "Brooks", "Carter", "Elliot", "Grant", 
         "Mau", "Mitch", "N8", "Owen", "Tanner", "Vince", "Watt"
@@ -227,35 +226,126 @@ const initRSVP = () => {
 
 
 // ==========================================
-// 4. LEADERBOARD CHART (UPDATED SCORES)
+// 4. ADVANCED CHARTING (BAR & TREND)
 // ==========================================
 const initChart = () => {
+    let seasonChartInstance = null;
+    let currentChartType = 'bar'; // default view
     const ctx = document.getElementById('seasonChart').getContext('2d');
     
+    // Core Data
     const players = ['Austin', 'Vince', 'Nate', 'Brooks', 'Tanner', 'Grant', 'Owen', 'Carter', 'Elliot'];
-    const scores = [36.25, -30.00, -10.50, 78.25, -92.50, 50.75, 20.00, -12.25, -40.00];
-    
-    const bgColors = scores.map(s => s >= 0 ? 'rgba(57, 255, 20, 0.7)' : 'rgba(255, 78, 0, 0.7)');
-    const bdColors = scores.map(s => s >= 0 ? 'rgba(57, 255, 20, 1)' : 'rgba(255, 78, 0, 1)');
+    const currentScores = [36.25, -30.00, -10.50, 78.25, -92.50, 50.75, 20.00, -12.25, -40.00];
 
-    new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: players,
-            datasets: [{ label: 'Season Total ($)', data: scores, backgroundColor: bgColors, borderColor: bdColors, borderWidth: 1, borderRadius: 4 }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { display: false },
-                tooltip: { callbacks: { label: (ctx) => ctx.raw < 0 ? `-$${Math.abs(ctx.raw).toFixed(2)}` : `$${ctx.raw.toFixed(2)}` } }
-            },
-            scales: {
-                y: { grid: { color: 'rgba(255, 255, 255, 0.1)' }, ticks: { color: '#9ca3af', font: { family: "'JetBrains Mono', monospace" } } },
-                x: { grid: { display: false }, ticks: { color: '#9ca3af' } }
-            }
+    // Computed Historical Progression [Start, Session 1, Session 2 (Current)]
+    const historyData = {
+        'Austin': [0, 18.25, 36.25],
+        'Vince': [0, -40.00, -30.00],
+        'Nate': [0, -40.00, -10.50],
+        'Brooks': [0, 64.50, 78.25],
+        'Tanner': [0, -23.50, -92.50],
+        'Grant': [0, 50.75, 50.75],
+        'Owen': [0, -30.00, 20.00],
+        'Carter': [0, 0.00, -12.25],
+        'Elliot': [0, 0.00, -40.00]
+    };
+    
+    // Distinct neon colors for the line graph
+    const lineColors = ['#39ff14', '#00e5ff', '#ff00ff', '#ffea00', '#ff4e00', '#9d00ff', '#ff8c00', '#00ff7f', '#ff1493'];
+
+    const renderChart = () => {
+        if (seasonChartInstance) seasonChartInstance.destroy();
+
+        if (currentChartType === 'bar') {
+            const bgColors = currentScores.map(s => s >= 0 ? 'rgba(57, 255, 20, 0.7)' : 'rgba(255, 78, 0, 0.7)');
+            const bdColors = currentScores.map(s => s >= 0 ? 'rgba(57, 255, 20, 1)' : 'rgba(255, 78, 0, 1)');
+
+            seasonChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: players,
+                    datasets: [{ label: 'Season Total ($)', data: currentScores, backgroundColor: bgColors, borderColor: bdColors, borderWidth: 1, borderRadius: 4 }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { callbacks: { label: (ctx) => ctx.raw < 0 ? `-$${Math.abs(ctx.raw).toFixed(2)}` : `$${ctx.raw.toFixed(2)}` } }
+                    },
+                    scales: {
+                        y: { grid: { color: 'rgba(255, 255, 255, 0.1)' }, ticks: { color: '#9ca3af', font: { family: "'JetBrains Mono', monospace" } } },
+                        x: { grid: { display: false }, ticks: { color: '#9ca3af' } }
+                    }
+                }
+            });
+        } else {
+            const lineDatasets = players.map((player, index) => ({
+                label: player,
+                data: historyData[player],
+                borderColor: lineColors[index],
+                backgroundColor: lineColors[index],
+                borderWidth: 2,
+                tension: 0.1,
+                pointRadius: 4,
+            }));
+
+            seasonChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Start', 'Session 1', 'Session 2'],
+                    datasets: lineDatasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { 
+                            display: true, 
+                            position: 'right', 
+                            labels: { color: '#9ca3af', boxWidth: 10, font: {size: 10, family: "'JetBrains Mono', monospace"} }
+                        },
+                        tooltip: { callbacks: { label: (ctx) => `${ctx.dataset.label}: ${ctx.raw < 0 ? `-$${Math.abs(ctx.raw).toFixed(2)}` : `$${ctx.raw.toFixed(2)}`}` } }
+                    },
+                    scales: {
+                        y: { grid: { color: 'rgba(255, 255, 255, 0.1)' }, ticks: { color: '#9ca3af', font: { family: "'JetBrains Mono', monospace" } } },
+                        x: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#9ca3af' } }
+                    }
+                }
+            });
         }
+    };
+
+    // Initial Render
+    renderChart();
+
+    // Toggle Button Event Listeners
+    document.getElementById('chart-toggle-bar').addEventListener('click', (e) => {
+        if(currentChartType === 'bar') return;
+        currentChartType = 'bar';
+        
+        e.target.classList.replace('text-gray-500', 'text-white');
+        e.target.classList.add('bg-sunset');
+        
+        const lineBtn = document.getElementById('chart-toggle-line');
+        lineBtn.classList.remove('bg-sunset', 'text-white');
+        lineBtn.classList.add('text-gray-500');
+        
+        renderChart();
+    });
+
+    document.getElementById('chart-toggle-line').addEventListener('click', (e) => {
+        if(currentChartType === 'line') return;
+        currentChartType = 'line';
+        
+        e.target.classList.replace('text-gray-500', 'text-white');
+        e.target.classList.add('bg-sunset');
+        
+        const barBtn = document.getElementById('chart-toggle-bar');
+        barBtn.classList.remove('bg-sunset', 'text-white');
+        barBtn.classList.add('text-gray-500');
+        
+        renderChart();
     });
 };
 

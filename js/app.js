@@ -226,18 +226,27 @@ const initRSVP = () => {
 
 
 // ==========================================
-// 4. ADVANCED CHARTING (BAR & TREND)
+// 4. ADVANCED CHARTING (BAR & TREND FILTER)
 // ==========================================
 const initChart = () => {
     let seasonChartInstance = null;
-    let currentChartType = 'bar'; // default view
+    let currentChartType = 'bar';
     const ctx = document.getElementById('seasonChart').getContext('2d');
+    const filterSelect = document.getElementById('chart-player-filter');
     
     // Core Data
     const players = ['Austin', 'Vince', 'Nate', 'Brooks', 'Tanner', 'Grant', 'Owen', 'Carter', 'Elliot'];
     const currentScores = [36.25, -30.00, -10.50, 78.25, -92.50, 50.75, 20.00, -12.25, -40.00];
 
-    // Computed Historical Progression [Start, Session 1, Session 2 (Current)]
+    // Populate dropdown with players
+    players.forEach(player => {
+        const opt = document.createElement('option');
+        opt.value = player;
+        opt.textContent = player;
+        filterSelect.appendChild(opt);
+    });
+
+    // Computed Historical Progression [Start, Session 1, Session 2]
     const historyData = {
         'Austin': [0, 18.25, 36.25],
         'Vince': [0, -40.00, -30.00],
@@ -250,13 +259,14 @@ const initChart = () => {
         'Elliot': [0, 0.00, -40.00]
     };
     
-    // Distinct neon colors for the line graph
     const lineColors = ['#39ff14', '#00e5ff', '#ff00ff', '#ffea00', '#ff4e00', '#9d00ff', '#ff8c00', '#00ff7f', '#ff1493'];
 
     const renderChart = () => {
         if (seasonChartInstance) seasonChartInstance.destroy();
 
         if (currentChartType === 'bar') {
+            filterSelect.classList.add('hidden'); // Hide filter in bar mode
+            
             const bgColors = currentScores.map(s => s >= 0 ? 'rgba(57, 255, 20, 0.7)' : 'rgba(255, 78, 0, 0.7)');
             const bdColors = currentScores.map(s => s >= 0 ? 'rgba(57, 255, 20, 1)' : 'rgba(255, 78, 0, 1)');
 
@@ -280,15 +290,21 @@ const initChart = () => {
                 }
             });
         } else {
-            const lineDatasets = players.map((player, index) => ({
-                label: player,
-                data: historyData[player],
-                borderColor: lineColors[index],
-                backgroundColor: lineColors[index],
-                borderWidth: 2,
-                tension: 0.1,
-                pointRadius: 4,
-            }));
+            filterSelect.classList.remove('hidden'); // Show filter in line mode
+            const selectedPlayer = filterSelect.value;
+            
+            // Filter datasets based on selection
+            const lineDatasets = players
+                .map((player, index) => ({
+                    label: player,
+                    data: historyData[player],
+                    borderColor: lineColors[index],
+                    backgroundColor: lineColors[index],
+                    borderWidth: 2,
+                    tension: 0.1,
+                    pointRadius: 4,
+                }))
+                .filter(dataset => selectedPlayer === 'all' || dataset.label === selectedPlayer);
 
             seasonChartInstance = new Chart(ctx, {
                 type: 'line',
@@ -316,10 +332,12 @@ const initChart = () => {
         }
     };
 
-    // Initial Render
     renderChart();
 
-    // Toggle Button Event Listeners
+    filterSelect.addEventListener('change', () => {
+        if(currentChartType === 'line') renderChart();
+    });
+
     document.getElementById('chart-toggle-bar').addEventListener('click', (e) => {
         if(currentChartType === 'bar') return;
         currentChartType = 'bar';

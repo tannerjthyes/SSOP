@@ -2,7 +2,7 @@ import { db } from './firebase-config.js';
 import { ref, push, onValue, set, off } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-database.js";
 
 // ==========================================
-// 1. DYNAMIC RECAP CAROUSEL
+// 1. DYNAMIC RECAP CAROUSEL & LEADERBOARD
 // ==========================================
 const recaps = [
     {
@@ -28,6 +28,17 @@ const recaps = [
             { title: "Big action", text: "Owen Big Winner + Lots of Bombs at the end of the night. Carter seemed to be in every pot!" },
             { title: "Quote of the night", text: "“Should I put all my polymarket winnings on the brewers” – Any guesses who????" },
             { title: "Beer rotation", text: "Thank you to Huske for bringing Brews" }
+        ],
+        ledger: [
+            { player: "Austin", buyIn: "40", rebuy: "-", chips: "58", total: 18.00 },
+            { player: "Vince", buyIn: "40", rebuy: "-", chips: "50", total: 10.00 },
+            { player: "Nate", buyIn: "40", rebuy: "-", chips: "69.5", total: 29.50 },
+            { player: "Brooks", buyIn: "40", rebuy: "-", chips: "53.75", total: 13.75 },
+            { player: "Tanner", buyIn: "40", rebuy: "40", chips: "11", total: -69.00 },
+            { player: "Grant", buyIn: "-", rebuy: "-", chips: "-", total: 0 },
+            { player: "Owen", buyIn: "40", rebuy: "-", chips: "90", total: 50.00 },
+            { player: "Carter", buyIn: "40", rebuy: "-", chips: "27.75", total: -12.25 },
+            { player: "Elliot", buyIn: "40", rebuy: "-", chips: "0", total: -40.00 }
         ]
     },
     {
@@ -49,6 +60,17 @@ const recaps = [
         notes: [
             { title: "Food", text: "Buffalo Chicken Wraps – From Vince. Solid start to the year." },
             { title: "Big action", text: "Tanner donating to G Mully + Lots of Bombs at the end of the night." }
+        ],
+        ledger: [
+            { player: "Austin", buyIn: "40", rebuy: "-", chips: "58.25", total: 18.25 },
+            { player: "Mitch", buyIn: "-", rebuy: "-", chips: "-", total: 0 },
+            { player: "Vince", buyIn: "40", rebuy: "-", chips: "-", total: -40.00 },
+            { player: "Nate", buyIn: "40", rebuy: "-", chips: "-", total: -40.00 },
+            { player: "Brooks", buyIn: "40", rebuy: "-", chips: "104.5", total: 64.50 },
+            { player: "Blake", buyIn: "-", rebuy: "-", chips: "-", total: 0 },
+            { player: "Tanner", buyIn: "40", rebuy: "-", chips: "16.5", total: -23.50 },
+            { player: "Grant", buyIn: "40", rebuy: "-", chips: "90.75", total: 50.75 },
+            { player: "Owen", buyIn: "40", rebuy: "60", chips: "70", total: -30.00 }
         ]
     }
 ];
@@ -59,6 +81,7 @@ const renderRecap = () => {
     const recap = recaps[currentRecapIndex];
     document.getElementById('recap-subtitle').textContent = `${recap.date} — Session ${recap.session}`;
     
+    // Build Recap Section
     document.getElementById('recap-container').innerHTML = `
         <p class="leading-relaxed text-gray-300">${recap.summary}</p>
         
@@ -95,6 +118,46 @@ const renderRecap = () => {
         </div>
     `;
 
+    // Rebuild Dynamic Weekly Leaderboard
+    document.getElementById('leaderboard-title').innerHTML = `
+        <svg class="w-5 h-5 mr-2 text-neon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+        Session ${recap.session} Leaderboard
+    `;
+    
+    document.getElementById('weekly-leaderboard-body').innerHTML = recap.ledger.map(row => {
+        let totalDisplay = "$-";
+        let totalClass = "text-gray-500";
+        if (row.total > 0) {
+            totalDisplay = `$${row.total.toFixed(2)}`;
+            totalClass = "text-neon";
+        } else if (row.total < 0) {
+            totalDisplay = `$(${Math.abs(row.total).toFixed(2)})`;
+            totalClass = "text-sunset";
+        }
+
+        return `
+            <tr class="hover:bg-gray-800/50 transition-colors">
+                <td class="px-4 py-3 font-semibold text-white">${row.player}</td>
+                <td class="px-4 py-3 text-center ${row.buyIn === '-' ? 'text-gray-500' : 'text-gray-400'}">${row.buyIn}</td>
+                <td class="px-4 py-3 text-center text-gray-500">${row.rebuy}</td>
+                <td class="px-4 py-3 text-center ${row.chips === '-' ? 'text-gray-500' : 'text-gray-400'}">${row.chips}</td>
+                <td class="px-4 py-3 text-right font-mono ${totalClass} font-bold">${totalDisplay}</td>
+            </tr>
+        `;
+    }).join('');
+
+    // Synchronize the Live RSVP dropdown to match this specific Session
+    const weekSelect = document.getElementById('rsvp-week-select');
+    if (weekSelect && weekSelect.options.length > 0) {
+        const targetSessionId = `session-${recap.session}`;
+        if (weekSelect.value !== targetSessionId) {
+            weekSelect.value = targetSessionId;
+            // Force the event listener to trigger so it pulls the correct data from Firebase
+            weekSelect.dispatchEvent(new Event('change'));
+        }
+    }
+
+    // Carousel buttons toggle state
     document.getElementById('prev-recap').disabled = currentRecapIndex === recaps.length - 1;
     document.getElementById('next-recap').disabled = currentRecapIndex === 0;
 };
@@ -213,12 +276,6 @@ const initRSVP = () => {
     weekSelect.addEventListener('change', (e) => {
         currentWeekId = e.target.value;
         bindWeekListener(currentWeekId);
-    });
-
-    rsvpList.addEventListener('click', (e) => {
-        if (e.target.classList.contains('rsvp-btn')) {
-            set(ref(db, `rsvp/${currentWeekId}/${e.target.dataset.player}`), e.target.dataset.status);
-        }
     });
 
     bindWeekListener(currentWeekId);
@@ -468,11 +525,11 @@ const initChat = () => {
     });
 };
 
-// Initialize components
+// Initialize components (Re-ordered so RSVP initializes before Recap calls it)
 document.addEventListener('DOMContentLoaded', () => {
+    initRSVP();
     renderRecap();
     renderFoodOrder();
-    initRSVP();
     initChart();
     initChat();
 });

@@ -176,10 +176,15 @@
                             <svg class="w-5 h-5 mr-2 text-sunset" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"></path></svg>
                             Season Leaderboard
                         </h2>
-                        <!-- New Chart Toggle Buttons -->
-                        <div class="flex space-x-1 bg-gray-950 rounded-lg p-1 border border-gray-700">
-                            <button id="chart-toggle-bar" class="px-3 py-1 text-xs font-bold rounded bg-sunset text-white transition-colors">Bar</button>
-                            <button id="chart-toggle-line" class="px-3 py-1 text-xs font-bold rounded text-gray-500 hover:text-white transition-colors">Trend</button>
+                        <!-- Chart Controls -->
+                        <div class="flex items-center space-x-3">
+                            <select id="chart-player-filter" class="hidden bg-gray-950 border border-gray-700 text-xs text-sunset font-mono rounded px-2 py-1 outline-none focus:border-sunset">
+                                <option value="all">All Players</option>
+                            </select>
+                            <div class="flex space-x-1 bg-gray-950 rounded-lg p-1 border border-gray-700">
+                                <button id="chart-toggle-bar" class="px-3 py-1 text-xs font-bold rounded bg-sunset text-white transition-colors">Bar</button>
+                                <button id="chart-toggle-line" class="px-3 py-1 text-xs font-bold rounded text-gray-500 hover:text-white transition-colors">Trend</button>
+                            </div>
                         </div>
                     </div>
                     <div class="w-full h-[300px] bg-gray-950 rounded-xl border border-gray-800 p-4">

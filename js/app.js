@@ -152,7 +152,6 @@ const renderRecap = () => {
         const targetSessionId = `session-${recap.session}`;
         if (weekSelect.value !== targetSessionId) {
             weekSelect.value = targetSessionId;
-            // Force the event listener to trigger so it pulls the correct data from Firebase
             weekSelect.dispatchEvent(new Event('change'));
         }
     }
@@ -220,9 +219,10 @@ const initRSVP = () => {
         "Mau", "Mitch", "N8", "Owen", "Tanner", "Vince", "Watt"
     ];
 
+    // Updated Session 3 date to 10/14
     const sessions = [
         { id: "session-2", label: "Session 2 (10/06)" },
-        { id: "session-3", label: "Session 3 (10/13)" },
+        { id: "session-3", label: "Session 3 (10/14)" },
         { id: "session-1", label: "Session 1 (09/29)" }
     ];
 
@@ -328,7 +328,7 @@ const initChart = () => {
         if (seasonChartInstance) seasonChartInstance.destroy();
 
         if (currentChartType === 'bar') {
-            filterSelect.classList.add('hidden'); // Hide filter in bar mode
+            filterSelect.classList.add('hidden');
             
             const bgColors = currentScores.map(s => s >= 0 ? 'rgba(57, 255, 20, 0.7)' : 'rgba(255, 78, 0, 0.7)');
             const bdColors = currentScores.map(s => s >= 0 ? 'rgba(57, 255, 20, 1)' : 'rgba(255, 78, 0, 1)');
@@ -353,10 +353,9 @@ const initChart = () => {
                 }
             });
         } else {
-            filterSelect.classList.remove('hidden'); // Show filter in line mode
+            filterSelect.classList.remove('hidden');
             const selectedPlayer = filterSelect.value;
             
-            // Filter datasets based on selection
             const lineDatasets = players
                 .map((player, index) => ({
                     label: player,
@@ -460,7 +459,6 @@ const initChat = () => {
             }
         });
 
-        // Explicitly sort messages by timestamp oldest -> newest
         msgs.sort((a, b) => (Number(a.timestamp) || 0) - (Number(b.timestamp) || 0));
 
         if (msgs.length === 0) {
@@ -531,7 +529,7 @@ const initChat = () => {
     });
 };
 
-// Initialize components (Re-ordered so RSVP initializes before Recap calls it)
+// Initialize components
 document.addEventListener('DOMContentLoaded', () => {
     initRSVP();
     renderRecap();

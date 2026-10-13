@@ -179,6 +179,8 @@ const renderFoodOrder = () => {
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
+    const diffDays = Math.floor((today - anchorDate) / (1000 * 60 * 60 * 24));
+    
     // One-off adjustment: delay rotation on Tuesday 10/13 specifically
     const isSession3TuesdayDelay = (today.getTime() === new Date("2026-10-13T00:00:00").getTime());
     const effectiveDays = isSession3TuesdayDelay ? diffDays - 1 : diffDays;
@@ -187,7 +189,7 @@ const renderFoodOrder = () => {
     const shiftAmount = weeksPassed % baseOrder.length;
     
     const currentOrder = [...baseOrder.slice(shiftAmount), ...baseOrder.slice(0, shiftAmount)];
-    // const diffDays = Math.floor((today - anchorDate) / (1000 * 60 * 60 * 24));
+    
     // const weeksPassed = Math.max(0, Math.floor(diffDays / 7));
     // const shiftAmount = weeksPassed % baseOrder.length;
     

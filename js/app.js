@@ -175,25 +175,16 @@ document.getElementById('next-recap').addEventListener('click', () => {
 // ==========================================
 const renderFoodOrder = () => {
     const baseOrder = ["N8", "Watt", "Owen", "Brooks", "Thyes", "Mau", "G Mully", "Vince"];
-    const anchorDate = new Date("2026-09-29T00:00:00"); 
+    // Anchor shifted forward by 7 days (from 09/29 to 10/06) to delay the entire cycle by 1 week
+    const anchorDate = new Date("2026-10-06T00:00:00"); 
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
     const diffDays = Math.floor((today - anchorDate) / (1000 * 60 * 60 * 24));
-    
-    // One-off adjustment: delay rotation on Tuesday 10/13 specifically
-    const isSession3TuesdayDelay = (today.getTime() === new Date("2026-10-13T00:00:00").getTime());
-    const effectiveDays = isSession3TuesdayDelay ? diffDays - 1 : diffDays;
-
-    const weeksPassed = Math.max(0, Math.floor(effectiveDays / 7));
+    const weeksPassed = Math.max(0, Math.floor(diffDays / 7));
     const shiftAmount = weeksPassed % baseOrder.length;
     
     const currentOrder = [...baseOrder.slice(shiftAmount), ...baseOrder.slice(0, shiftAmount)];
-    
-    // const weeksPassed = Math.max(0, Math.floor(diffDays / 7));
-    // const shiftAmount = weeksPassed % baseOrder.length;
-    
-    // const currentOrder = [...baseOrder.slice(shiftAmount), ...baseOrder.slice(0, shiftAmount)];
 
     document.getElementById('food-order-list').innerHTML = `
         <li class="flex justify-between items-center p-3 hover:bg-gray-800/30">

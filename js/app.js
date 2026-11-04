@@ -26,7 +26,7 @@ const recaps = [
         notes: [
             { title: "Food", text: "dominooooossss" },
             { title: "Big action", text: "quiet night with a couple boats and lots of flushes" },
-            { title: "Quote of the night", text: "“Put it in the drawer”" },
+            { title: "Another Quote", text: ""I wouldn't fire them because they are good people"" },
             { title: "QOTD", text: "“I voted yes because my friend told me to.”" },
             { title: "Beer rotation", text: "Thank you to Huske for bringing Brews" }
         ],

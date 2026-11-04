@@ -6,6 +6,43 @@ import { ref, push, onValue, set, off } from "https://www.gstatic.com/firebasejs
 // ==========================================
 const recaps = [
     {
+        date: "11/3/2026",
+        session: 3,
+        summary: "Election night and pickleball were some factors on this dark gloomy wet night at sully way. There was a consensus about the confusing questions at the end. The blue tidal wave took over as brooks doesn’t care about taxes. Blake also donated to the campaign. Mitch also asked the poll workers how so many illegals vote and he was met with an angry face. One has to wonder how many illegals voted in this election to pass the school referendum as they don’t even pay their share of taxes.",
+        quote: "Put it in the drawer",
+        quoteAuthor: "Bert Ambrose",
+        highlights: [
+            "THE FELLAS HAVING A GOOD TIME",
+            "Minnie, Mitch, Carter, Huske showing up",
+            "Watt non Irish goodbye"
+        ],
+        lowlights: [
+            "Hank trying to eat pizza",
+            "School referendum",
+            "Blue",
+            "Owen ditching the fellas",
+            "BZ no play"
+        ],
+        notes: [
+            { title: "Food", text: "dominooooossss" },
+            { title: "Big action", text: "quiet night with a couple boats and lots of flushes" },
+            { title: "Quote of the night", text: "“Put it in the drawer”" },
+            { title: "QOTD", text: "“I voted yes because my friend told me to.”" },
+            { title: "Beer rotation", text: "Thank you to Huske for bringing Brews" }
+        ],
+        ledger: [
+            { player: "Austin", buyIn: "40", rebuy: "-", chips: "40.25", total: 0.25 },
+            { player: "Vince", buyIn: "0", rebuy: "-", chips: "0", total: 0 },
+            { player: "Nate", buyIn: "0", rebuy: "-", chips: "0", total: 0 },
+            { player: "Brooks", buyIn: "40", rebuy: "-", chips: "30", total: -10.00 },
+            { player: "Tanner", buyIn: "40", rebuy: "-", chips: "51", total: 11.00 },
+            { player: "Grant", buyIn: "40", rebuy: "-", chips: "78.75", total: 38.75 },
+            { player: "Owen", buyIn: "-", rebuy: "-", chips: "-", total: 0 },
+            { player: "Carter", buyIn: "40", rebuy: "-", chips: "-", total: -40.00 },
+            { player: "Elliot", buyIn: "-", rebuy: "-", chips: "-", total: 0 }
+        ]
+    },
+    {
         date: "10/6/2026",
         session: 2,
         summary: "The house was packed as we set a record number of attendees. Mau and AT were grinding on the stove. The EX fldp’s were giving each other putting lessons while the current fldp’s were getting taught how to play poker. Tanner Thyes lost 60 in bombs as Brooks had the luck on his side",
@@ -114,7 +151,7 @@ const renderRecap = () => {
 
         <div class="mt-4 bg-gray-950/50 p-4 rounded-xl border border-gray-800">
             <h3 class="text-white font-bold mb-2">Notes 📝</h3>
-            ${recap.notes.map(n => `<p class="text-sm mb-1"><strong class="text-gray-400">${n.title}:</strong>${n.text}</p>`).join('')}
+            ${recap.notes.map(n => `<p class="text-sm mb-1"><strong class="text-gray-400">${n.title}:</strong> ${n.text}</p>`).join('')}
         </div>
     `;
 
@@ -150,7 +187,7 @@ const renderRecap = () => {
     const weekSelect = document.getElementById('rsvp-week-select');
     if (weekSelect && weekSelect.options.length > 0) {
         const targetSessionId = `session-${recap.session}`;
-        if (weekSelect.value !== targetSessionId) {
+        if (weekSelect.value !== targetSessionId && weekSelect.querySelector(`option[value="${targetSessionId}"]`)) {
             weekSelect.value = targetSessionId;
             weekSelect.dispatchEvent(new Event('change'));
         }
@@ -174,17 +211,8 @@ document.getElementById('next-recap').addEventListener('click', () => {
 // 2. AUTOMATED FOOD ORDER
 // ==========================================
 const renderFoodOrder = () => {
-    const baseOrder = ["N8", "Watt", "Owen", "Brooks", "Thyes", "Mau", "G Mully", "Vince"];
-    // Anchor shifted forward by 7 days (from 09/29 to 10/06) to delay the entire cycle by 1 week
-    const anchorDate = new Date("2026-10-06T00:00:00"); 
-    const now = new Date();
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-
-    const diffDays = Math.floor((today - anchorDate) / (1000 * 60 * 60 * 24));
-    const weeksPassed = Math.max(0, Math.floor(diffDays / 7));
-    const shiftAmount = weeksPassed % baseOrder.length;
-    
-    const currentOrder = [...baseOrder.slice(shiftAmount), ...baseOrder.slice(0, shiftAmount)];
+    // Exact food rotation order from Sully's Session 3 update
+    const currentOrder = ["Owen", "Brooks", "Thyes", "Mau", "G Mully", "Vince", "N8", "Watt"];
 
     document.getElementById('food-order-list').innerHTML = `
         <li class="flex justify-between items-center p-3 hover:bg-gray-800/30">
@@ -220,10 +248,10 @@ const initRSVP = () => {
         "Mau", "Mitch", "N8", "Owen", "Tanner", "Vince", "Watt"
     ];
 
-    // Updated Session 3 date to 10/14
     const sessions = [
+        { id: "session-4", label: "Session 4 (11/10)" },
+        { id: "session-3", label: "Session 3 (11/03)" },
         { id: "session-2", label: "Session 2 (10/06)" },
-        { id: "session-3", label: "Session 3 (10/14)" },
         { id: "session-1", label: "Session 1 (09/29)" }
     ];
 
@@ -231,7 +259,7 @@ const initRSVP = () => {
         <option value="${s.id}">${s.label}</option>
     `).join('');
 
-    let currentWeekId = sessions[0].id;
+    let currentWeekId = sessions[1].id; // Default active to Session 3
     let currentWeekRef = null;
 
     const renderRosterDOM = () => {
@@ -298,11 +326,12 @@ const initChart = () => {
     const ctx = document.getElementById('seasonChart').getContext('2d');
     const filterSelect = document.getElementById('chart-player-filter');
     
-    // Core Data
+    // Core Data (Season Leaderboard Post-Session 3)
     const players = ['Austin', 'Vince', 'Nate', 'Brooks', 'Tanner', 'Grant', 'Owen', 'Carter', 'Elliot'];
-    const currentScores = [36.25, -30.00, -10.50, 78.25, -92.50, 50.75, 20.00, -12.25, -40.00];
+    const currentScores = [36.50, -30.00, -10.50, 68.25, -81.50, 89.50, 20.00, -52.25, -40.00];
 
     // Populate dropdown with players
+    filterSelect.innerHTML = '<option value="all">All Players</option>';
     players.forEach(player => {
         const opt = document.createElement('option');
         opt.value = player;
@@ -310,17 +339,17 @@ const initChart = () => {
         filterSelect.appendChild(opt);
     });
 
-    // Computed Historical Progression [Start, Session 1, Session 2]
+    // Computed Historical Progression [Start, Session 1, Session 2, Session 3]
     const historyData = {
-        'Austin': [0, 18.25, 36.25],
-        'Vince': [0, -40.00, -30.00],
-        'Nate': [0, -40.00, -10.50],
-        'Brooks': [0, 64.50, 78.25],
-        'Tanner': [0, -23.50, -92.50],
-        'Grant': [0, 50.75, 50.75],
-        'Owen': [0, -30.00, 20.00],
-        'Carter': [0, 0.00, -12.25],
-        'Elliot': [0, 0.00, -40.00]
+        'Austin': [0, 18.25, 36.25, 36.50],
+        'Vince': [0, -40.00, -30.00, -30.00],
+        'Nate': [0, -40.00, -10.50, -10.50],
+        'Brooks': [0, 64.50, 78.25, 68.25],
+        'Tanner': [0, -23.50, -92.50, -81.50],
+        'Grant': [0, 50.75, 50.75, 89.50],
+        'Owen': [0, -30.00, 20.00, 20.00],
+        'Carter': [0, 0.00, -12.25, -52.25],
+        'Elliot': [0, 0.00, -40.00, -40.00]
     };
     
     const lineColors = ['#39ff14', '#00e5ff', '#ff00ff', '#ffea00', '#ff4e00', '#9d00ff', '#ff8c00', '#00ff7f', '#ff1493'];
@@ -372,7 +401,7 @@ const initChart = () => {
             seasonChartInstance = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: ['Start', 'Session 1', 'Session 2'],
+                    labels: ['Start', 'Session 1', 'Session 2', 'Session 3'],
                     datasets: lineDatasets
                 },
                 options: {

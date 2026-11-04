@@ -10,7 +10,7 @@ const recaps = [
         session: 3,
         summary: "Election night and pickleball were some factors on this dark gloomy wet night at sully way. There was a consensus about the confusing questions at the end. The blue tidal wave took over as brooks doesn’t care about taxes. Blake also donated to the campaign. Mitch also asked the poll workers how so many illegals vote and he was met with an angry face. One has to wonder how many illegals voted in this election to pass the school referendum as they don’t even pay their share of taxes.",
         quote: "Put it in the drawer",
-        quoteAuthor: "Bert Ambrose",
+        quoteAuthor: "Kept Anonymous",
         highlights: [
             "THE FELLAS HAVING A GOOD TIME",
             "Minnie, Mitch, Carter, Huske showing up",

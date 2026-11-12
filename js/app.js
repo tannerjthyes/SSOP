@@ -8,9 +8,21 @@ const recaps = [
     {
         date: "11/11/2026",
         session: 4,
-        summary: "The house was full as we had all but 1 full time member at sully way. Elliot lost 22 dollars in cribbage and he can’t count his chips. FLDP shit what is new. Carter MIA. Hates fun. Nathan failed to stay until bombs as he got bounced out. Sparty dominated. Abdul lover. This picture was taken when he still had chips. Mauricio gearing up to play with Blake next week. Instead of AWBZ coalition it will be MHVBZ coalition. Tanner will need to apply for unemployment as he keeps losing. Good thing we are blue. Owen blamed it on the dealer as being card dead all night. Grant wins again. I will pay you out this time. HANK WALTERS CASHES THE OVER ON 4.5 pieces of food as we learned Owen fed him one under the table to cash the over? Insider trading? Some say a smart play. Andrew Watt was slinging zyns around the table all night and got the dealer loopy. Brooks would vote for Netanyahu if he was building a school. CONFIRMED.",
+        summary: [
+            "The house was full as we had all but 1 full time member at sully way.",
+            "Elliot lost 22 dollars in cribbage and he can’t count his chips. FLDP shit what is new.",
+            "Carter MIA. Hates fun.",
+            "Nathan failed to stay until bombs as he got bounced out. Sparty dominated. Abdul lover. This picture was taken when he still had chips.",
+            "Mauricio gearing up to play with Blake next week. Instead of AWBZ coalition it will be MHVBZ coalition.",
+            "Tanner will need to apply for unemployment as he keeps losing. Good thing we are blue.",
+            "Owen blamed it on the dealer as being card dead all night.",
+            "Grant wins again. I will pay you out this time.",
+            "HANK WALTERS CASHES THE OVER ON 4.5 pieces of food as we learned Owen fed him one under the table to cash the over? Insider trading? Some say a smart play.",
+            "Andrew Watt was slinging zyns around the table all night and got the dealer loopy.",
+            "Brooks would vote for Netanyahu if he was building a school. CONFIRMED."
+        ],
         quote: "Mail in ballots are a scam but I made EJ do it",
-        quoteAuthor: "Mr. Sully",
+        quoteAuthor: "N8",
         highlights: [
             "THE FELLAS HAVING A GOOD TIME",
             "Brats burgers and mau learning how to play",

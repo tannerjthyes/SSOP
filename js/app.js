@@ -10,7 +10,7 @@ const recaps = [
         session: 5,
         summary: "FLDP ditch poker just like work responsibilities. Vincent Omernik disappeared and doesn’t like to hang out even when MG in India. Blake Zadra is still watching film and waiting to play. Grant Mullins and Tanner Thyes Cashes the winning session. Congrats to Carter Schreiber on his first winning session at sully!",
         quote: "Where is Vince",
-        quoteAuthor: "Mr. Sully",
+        quoteAuthor: "Everyone",
         highlights: [
             "THE FELLAS HAVING A GOOD TIME",
             "Chicken Fajitas",
@@ -295,8 +295,7 @@ document.getElementById('next-recap').addEventListener('click', () => {
 // 2. AUTOMATED FOOD ORDER
 // ==========================================
 const renderFoodOrder = () => {
-    // Rotation updated directly from Session 4 recap
-    const currentOrder = ["Brooks", "Thyes", "Mau", "G Mully", "Vince", "N8", "Watt", "Owen"];
+    const currentOrder = ["Thyes", "Mau", "G Mully", "Vince", "N8", "Watt", "Owen", "Brooks"];
 
     document.getElementById('food-order-list').innerHTML = `
         <li class="flex justify-between items-center p-3 hover:bg-gray-800/30">
@@ -333,6 +332,7 @@ const initRSVP = () => {
     ];
 
     const sessions = [
+        { id: "session-6", label: "Session 6 (11/24)" },
         { id: "session-5", label: "Session 5 (11/17)" },
         { id: "session-4", label: "Session 4 (11/11)" },
         { id: "session-3", label: "Session 3 (11/03)" },
@@ -344,7 +344,7 @@ const initRSVP = () => {
         <option value="${s.id}">${s.label}</option>
     `).join('');
 
-    let currentWeekId = sessions[1].id; // Default to Session 4
+    let currentWeekId = sessions[1].id;
     let currentWeekRef = null;
 
     const renderRosterDOM = () => {
@@ -411,11 +411,9 @@ const initChart = () => {
     const ctx = document.getElementById('seasonChart').getContext('2d');
     const filterSelect = document.getElementById('chart-player-filter');
     
-    // Core Data (Season Leaderboard Post-Session 4)
     const players = ['Austin', 'Vince', 'Nate', 'Brooks', 'Tanner', 'Grant', 'Owen', 'Carter', 'Elliot'];
-    const currentScores = [62.25, -30.00, -50.50, 97.50, -86.25, 104.75, -0.50, -52.25, -45.00];
+    const currentScores = [37.25, -30.00, -50.50, 81.25, -61.25, 117.25, -0.50, -48.50, -45.00];
 
-    // Populate dropdown with players
     filterSelect.innerHTML = '<option value="all">All Players</option>';
     players.forEach(player => {
         const opt = document.createElement('option');
@@ -424,17 +422,16 @@ const initChart = () => {
         filterSelect.appendChild(opt);
     });
 
-    // Computed Historical Progression [Start, Session 1, Session 2, Session 3, Session 4]
     const historyData = {
-        'Austin': [0, 18.25, 36.25, 36.50, 62.25],
-        'Vince': [0, -40.00, -30.00, -30.00, -30.00],
-        'Nate': [0, -40.00, -10.50, -10.50, -50.50],
-        'Brooks': [0, 64.50, 78.25, 68.25, 97.50],
-        'Tanner': [0, -23.50, -92.50, -81.50, -86.25],
-        'Grant': [0, 50.75, 50.75, 89.50, 104.75],
-        'Owen': [0, -30.00, 20.00, 20.00, -0.50],
-        'Carter': [0, 0.00, -12.25, -52.25, -52.25],
-        'Elliot': [0, 0.00, -40.00, -40.00, -45.00]
+        'Austin': [0, 18.25, 36.25, 36.50, 62.25, 37.25],
+        'Vince': [0, -40.00, -30.00, -30.00, -30.00, -30.00],
+        'Nate': [0, -40.00, -10.50, -10.50, -50.50, -50.50],
+        'Brooks': [0, 64.50, 78.25, 68.25, 97.50, 81.25],
+        'Tanner': [0, -23.50, -92.50, -81.50, -86.25, -61.25],
+        'Grant': [0, 50.75, 50.75, 89.50, 104.75, 117.25],
+        'Owen': [0, -30.00, 20.00, 20.00, -0.50, -0.50],
+        'Carter': [0, 0.00, -12.25, -52.25, -52.25, -48.50],
+        'Elliot': [0, 0.00, -40.00, -40.00, -45.00, -45.00]
     };
     
     const lineColors = ['#39ff14', '#00e5ff', '#ff00ff', '#ffea00', '#ff4e00', '#9d00ff', '#ff8c00', '#00ff7f', '#ff1493'];
@@ -486,7 +483,7 @@ const initChart = () => {
             seasonChartInstance = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: ['Start', 'Session 1', 'Session 2', 'Session 3', 'Session 4'],
+                    labels: ['Start', 'Session 1', 'Session 2', 'Session 3', 'Session 4', 'Session 5'],
                     datasets: lineDatasets
                 },
                 options: {

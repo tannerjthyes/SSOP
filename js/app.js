@@ -6,6 +6,42 @@ import { ref, push, onValue, set, off } from "https://www.gstatic.com/firebasejs
 // ==========================================
 const recaps = [
     {
+        date: "11/17/2026",
+        session: 5,
+        summary: "FLDP ditch poker just like work responsibilities. Vincent Omernik disappeared and doesn’t like to hang out even when MG in India. Blake Zadra is still watching film and waiting to play. Grant Mullins and Tanner Thyes Cashes the winning session. Congrats to Carter Schreiber on his first winning session at sully!",
+        quote: "Where is Vince",
+        quoteAuthor: "Mr. Sully",
+        highlights: [
+            "THE FELLAS HAVING A GOOD TIME",
+            "Chicken Fajitas",
+            "Watt non Irish goodbye"
+        ],
+        lowlights: [
+            "Vince MIA",
+            "FLDP Brains",
+            "Elliot’s Cribbage skills",
+            "BZ no play"
+        ],
+        notes: [
+            { title: "Food", text: "Chicken Fajitas courtesy of Brooksy" },
+            { title: "Big action", text: "Carter Rinsed AT w KK vs QQ" },
+            { title: "Quote of the night", text: "“Where is Vince”" },
+            { title: "QOTD", text: "“Odds of finding the pirate token are better than finding Mauricio working at his desk” — “Nate El Sayed” - Owen" },
+            { title: "Beer rotation", text: "Thank you to Owen for bringing Brews" }
+        ],
+        ledger: [
+            { player: "Austin", buyIn: "40", rebuy: "-", chips: "15", total: -25.00 },
+            { player: "Vince", buyIn: "0", rebuy: "-", chips: "0", total: 0 },
+            { player: "Nate", buyIn: "0", rebuy: "-", chips: "0", total: 0 },
+            { player: "Brooks", buyIn: "40", rebuy: "-", chips: "23.75", total: -16.25 },
+            { player: "Tanner", buyIn: "40", rebuy: "-", chips: "65", total: 25.00 },
+            { player: "Grant", buyIn: "40", rebuy: "-", chips: "52.5", total: 12.50 },
+            { player: "Owen", buyIn: "40", rebuy: "-", chips: "40", total: 0 },
+            { player: "Carter", buyIn: "40", rebuy: "-", chips: "43.75", total: 3.75 },
+            { player: "Elliot", buyIn: "0", rebuy: "-", chips: "0", total: 0 }
+        ]
+    },
+    {
         date: "11/11/2026",
         session: 4,
         summary: [
